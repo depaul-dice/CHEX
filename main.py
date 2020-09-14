@@ -4,7 +4,7 @@
 # and storage cost (cost of storing a NodeData).
 
 import ExecutionTree as exT
-from model import DFScomputeCost, optimal
+from solver_algorithms import DFScomputeCost, optimal
 computeCost = 0
 
 class Cache(object):

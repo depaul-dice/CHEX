@@ -1,7 +1,3 @@
-from __future__ import division
-
-#from msilib import Binary
-
 from pyomo.environ import *
 from pyomo.solvers import *
 from pyomo.opt import ProblemFormat
