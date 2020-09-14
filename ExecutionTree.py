@@ -21,8 +21,9 @@ class NodeData:
 
 
 class ExecutionTree(Tree):
+
     def reset(self):
-        for node in self.all_nodes():
+        for node in self.all_nodes_itr():
             node.data.reset()
 
 
@@ -69,10 +70,10 @@ def fixed_node_factory(_):
 def rand_node_factory(height):
     """Create a Node of random cost and size based on height"""
     height = max(1, height)
-    r_cost_lim = 100 * height
-    c_size_lim = 100 // height
-    r_cost = randint(max(0, r_cost_lim - 10), r_cost_lim + 10)
-    c_size = randint(max(0, c_size_lim - 10), c_size_lim + 10)
+    r_cost_lim = 10 * height
+    c_size_lim = 10 // height
+    r_cost = randint(max(1, r_cost_lim - 10), r_cost_lim + 10)
+    c_size = randint(max(1, c_size_lim - 10), c_size_lim + 10)
     return NodeData(r_cost, c_size)
 
 

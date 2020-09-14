@@ -1,49 +1,57 @@
-# a simple DFS with some cost checking
 
-def DFSv1(node,extree,cache):
-    #if node.is_root():
-        # First print the data of node
-    if (node.data.x_in_cache == False):
-        extree.totalccost = extree.totalccost + node.data.r_cost
-        if (cache.hasSpace(node.data.c_size)):
+def check_constraints(ex_tree, node, paths):
+    for path in paths:
+        if node.identifier in path:
+            path_nodes = map(lambda path_node: ex_tree.get_node(path_node).data, path)
+            if sum(path_node.c_size for path_node in path_nodes if path_node.x_in_cache) > ex_tree.cache_size:
+                return False
+    return True
+
+
+def dfs_cost(ex_tree, node=None):
+    if node is None:
+        ex_tree.total_c_cost = 0
+        node = ex_tree.get_node(ex_tree.root)
+    for child in ex_tree.children(node.identifier):
+        dfs_cost(ex_tree, child)
+    if node.is_leaf():
+        node.data.y = 1
+    else:
+        # compute y value for all children
+        node.data.y = 0  # reinitialize for repeated runs
+        for child in ex_tree.children(node.identifier):
+            node.data.y += 1 + (child.data.y - 1) * (1 - child.data.x_in_cache)
+
+    ex_tree.total_c_cost += node.data.r_cost * (node.data.y - 1) * (1 - node.data.x_in_cache)
+    return ex_tree.total_c_cost
+
+
+def dfs_algorithm(ex_tree, cost_compare):
+    paths = ex_tree.paths_to_leaves()
+    nodes = set(ex_tree.filter_nodes(lambda tree_node: not tree_node.is_leaf()))
+
+    while True:
+        min_node, min_cost = None, float('inf')
+        for node in nodes:
             node.data.x_in_cache = True
+            if check_constraints(ex_tree, node, paths):
+                if cost_compare(new_cost := dfs_cost(ex_tree), node, min_cost, min_node):
+                    min_node, min_cost = node, new_cost
+            node.data.x_in_cache = False
+        if not min_node:
+            break
+        min_node.data.x_in_cache = True
+        nodes.remove(min_node)
+    print(ex_tree.show(data_property='x_in_cache'))
 
-    #print(node.identifier),
-    cnt = 0
-    for child in extree.tree.is_branch(node.identifier):
-        cnt = cnt +1
-        #extree.totalccost = extree.totalccost + node.data.r_cost
-        DFSv1(extree.tree.get_node(child),extree,cache)
-        print("Cost: " + str(extree.totalccost))
-        extree.tree.get_node(child)
-    node.data.numChildren = cnt
-    return extree.totalccost
 
-def paths(node,tree):
-  #Helper function
-  #receives a tree and
-  #returns all paths that have this node as root and all other paths
+def dfs_algorithm_v1(ex_tree):
+    return dfs_algorithm(ex_tree, lambda new_cost, new_node, min_cost, min_node: new_cost < min_cost)
 
-  if node is None:
-    return ([], [])
-  else: #tree is a node
-    root = node.identifier
-    rooted_paths = [[root]]
-    unrooted_paths = []
-    for child in tree.children(node.identifier):
-        (useable, unuseable) = paths(child,tree)
-        for path in useable:
-            unrooted_paths.append(path)
-            rooted_paths.append([root]+path)
-        for path in unuseable:
-            unrooted_paths.append(path)
-    return (rooted_paths, unrooted_paths)
 
-def combinations(items):
-    return (set(compress(items,mask)) for mask in product(*[[0,1]]*len(items)))
-
-#def enumeratepaths(tree):
-
-# take each path of the tree and see if the size constraint is met with object being in cache
-# generate
-# def configurations(tree,size):
+def dfs_algorithm_v2(ex_tree):
+    def cost_compare(new_cost, new_node, min_cost, min_node):
+        if min_node is None:
+            return True
+        return (new_cost / new_node.data.c_size) < (min_cost / min_node.data.c_size)
+    return dfs_algorithm(ex_tree, cost_compare)
