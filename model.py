@@ -27,7 +27,7 @@ def DFScomputeCost(node,extree):
     else:
         # compute y value for all children
         for (child) in extree.children(node.identifier):
-            node.data.y = node.data.y + (1+ (child.data.y-1)*(1-(1 if (child.data.inCache) else 0)))
+            node.data.y = node.data.y + (1 + (child.data.y-1) * (1 - (1 if (child.data.x_in_cache) else 0)))
 
     return
 
@@ -112,11 +112,11 @@ def optimal(extree):
     model.one = Param(model.I,within=PositiveIntegers,initialize=1)
 
     def recost_init(model,i):
-        return extree.get_node("n" + str(model.I[i]-1)).data.reCost
+        return extree.get_node("n" + str(model.I[i]-1)).data.r_cost
     model.recost = Param(model.I, within=NonNegativeIntegers, initialize=recost_init)
 
     def storage_init(model,i):
-        return extree.get_node("n" + str(model.I[i]-1)).data.size
+        return extree.get_node("n" + str(model.I[i]-1)).data.c_size
     model.storagecost = Param(model.I, within=NonNegativeIntegers,initialize=storage_init)
 
 

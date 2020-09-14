@@ -1,4 +1,4 @@
-import random
+from random import randint, choice
 from functools import singledispatch
 from itertools import islice
 
@@ -8,17 +8,15 @@ from treelib import Tree
 class NodeData:
 
     def __init__(self, r_cost, c_size):
-        self.reCost = r_cost  # corresponds to r in equation
-        self.size = c_size  # corresponds to c in equation
-        self.inCache = False  # corresponds to x in equation
+        self.r_cost = r_cost  # corresponds to r in equation
+        self.c_size = c_size  # corresponds to c in equation
+        self.x_in_cache = False  # corresponds to x in equation
         self.y = 0  # corresponds to y in equation
-        self.marked = False
         self.numChildren = 0
 
     def reset(self):
-        self.inCache = False
+        self.x_in_cache = False
         self.y = 0
-        # self.itBit = 0
         self.numChildren = 0
 
 
@@ -36,6 +34,7 @@ def create_tree(creation_type, *args, **kwargs):
 
 @create_tree.register
 def _(creation_type: int, *args, **kwargs):
+    """Alternative that finds the function using index rather than the key"""
     assert 1 <= creation_type <= len(create_tree.tree_creator_map)
     return next(islice(create_tree.tree_creator_map.values(),
                        creation_type - 1,
@@ -47,14 +46,18 @@ create_tree.tree_creator_map = {}
 
 def register_tree_creator(creation_type):
     """Use this decorator to register a tree creator with create_tree"""
-    assert type(creation_type) is not int
+    assert not isinstance(creation_type, int)
 
     def register(tree_creator):
         create_tree.tree_creator_map[creation_type] = tree_creator
         create_tree.__doc__ += f'\n{len(create_tree.tree_creator_map)}. {creation_type}'
         return tree_creator
 
-    return register
+    if callable(creation_type):
+        creator, creation_type = creation_type, creation_type.__name__
+        return register(creator)
+    else:
+        return register
 
 
 def fixed_node_factory(_):
@@ -68,8 +71,8 @@ def rand_node_factory(height):
     height = max(1, height)
     r_cost_lim = 100 * height
     c_size_lim = 100 // height
-    r_cost = random.randint(max(0, r_cost_lim - 10), r_cost_lim + 10)
-    c_size = random.randint(max(0, c_size_lim - 10), c_size_lim + 10)
+    r_cost = randint(max(0, r_cost_lim - 10), r_cost_lim + 10)
+    c_size = randint(max(0, c_size_lim - 10), c_size_lim + 10)
     return NodeData(r_cost, c_size)
 
 
@@ -101,7 +104,7 @@ def branch_tree_creator(k, height, node_factory=rand_node_factory):
     tree = ExecutionTree()
     tree.create_node("N0", "n0", data=node_factory(0))
     for i in range(1, (k**(height + 1) - 1) // (k - 1)):
-        if random.choice([True, False]) and tree.contains(f'n{(i - 1) // k}'):
+        if choice([True, False]) and tree.contains(f'n{(i - 1) // k}'):
             tree.create_node(f'N{i}', f'n{i}', parent=f'n{(i - 1) // k}',
                              data=node_factory(tree.depth(f'n{(i - 1) // k}') + 1))
     return tree

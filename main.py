@@ -34,9 +34,9 @@ def GreedyDFScomputeCost(node,extree):
         # compute y value for all children
         node.data.y = 0  # reinitialize for repeated runs
         for (child) in extree.children(node.identifier):
-            node.data.y = node.data.y + (1+ (child.data.y-1)*(1-(1 if (child.data.inCache) else 0)))
+            node.data.y = node.data.y + (1 + (child.data.y-1) * (1 - (1 if (child.data.x_in_cache) else 0)))
 
-    extree.totalccost = extree.totalccost + node.data.reCost*(node.data.y -1)*(1-(1 if (node.data.inCache) else 0))
+    extree.totalccost = extree.totalccost + node.data.r_cost * (node.data.y - 1) * (1 - (1 if (node.data.x_in_cache) else 0))
     #print("id:" + node.identifier +  " y: " + str(node.data.y) + " cost " + str(extree.totalccost))
     return extree.totalccost
 
@@ -82,7 +82,7 @@ def main():
          for path in pathswithnode:
              budget = 0
              for node in path:
-                 budget = budget + ex_tree.get_node(node).data.size * ex_tree.get_node(node).data.inCache
+                 budget = budget + ex_tree.get_node(node).data.c_size * ex_tree.get_node(node).data.x_in_cache
 
              if (budget >= cache.cSize):
                  inFeasiblePath = True
@@ -96,14 +96,14 @@ def main():
          minComputeCost = 100000
          candidates = []
          for i in ex_tree.all_nodes():
-             if i.is_leaf() or i.data.inCache == True:
+             if i.is_leaf() or i.data.x_in_cache == True:
                  continue
              else:
                  if (isCandidateforCaching(i.identifier)):
                     candidates.append(i.identifier)
 
          #for i in range(ex_tree.size()):
-         #   if ex_tree.get_node("n"+str(i)).is_leaf() or ex_tree.get_node("n" + str(i)).data.inCache == True:
+         #   if ex_tree.get_node("n"+str(i)).is_leaf() or ex_tree.get_node("n" + str(i)).data.x_in_cache == True:
          #       continue
          #   else:
          #       if (isCandidateforCaching(i)):
@@ -116,21 +116,21 @@ def main():
          for i in candidates:
             #ignore leaves; they will never be in cache
             ex_tree.totalccost = 0
-            if ex_tree.get_node(i).is_leaf() or ex_tree.get_node(i).data.inCache == True:
+            if ex_tree.get_node(i).is_leaf() or ex_tree.get_node(i).data.x_in_cache == True:
                  continue
             else:
-                 ex_tree.get_node(i).data.inCache = True   #set the node to be inCache temporarily
+                 ex_tree.get_node(i).data.x_in_cache = True   #set the node to be x_in_cache temporarily
                  cCost = GreedyDFScomputeCost(ex_tree.get_node("n0"), ex_tree)
                  if (cCost < minComputeCost):
                      minComputeCost = cCost
                      mincostNode = i
-                 ex_tree.get_node(i).data.inCache = False
+                 ex_tree.get_node(i).data.x_in_cache = False
             #print("id: n" + str(i) + " ccost: " + str(cCost) + " minCost: " + str(minComputeCost))
          print(" minCost: " + str(minComputeCost) + " mincostnode: " + mincostNode)
-    #     #if (cache.hasSpace(ex_tree.get_node(mincostNode).data.size)):
-    #     cache.insert(ex_tree.get_node(mincostNode).data.size)
+    #     #if (cache.hasSpace(ex_tree.get_node(mincostNode).data.c_size)):
+    #     cache.insert(ex_tree.get_node(mincostNode).data.c_size)
 
-         ex_tree.get_node(mincostNode).data.inCache = True
+         ex_tree.get_node(mincostNode).data.x_in_cache = True
 
        #else:
     #        print("minCost:" + str(minComputeCost))
@@ -143,7 +143,7 @@ def main():
 
 
     #ex_tree.show(data_property=lambda x: x.NodeData.numChildren)
-    ex_tree.show(data_property='inCache')
+    ex_tree.show(data_property='x_in_cache')
     #ex_tree.show()
 
     #ex_tree.reset()

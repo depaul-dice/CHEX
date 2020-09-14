@@ -3,16 +3,16 @@
 def DFSv1(node,extree,cache):
     #if node.is_root():
         # First print the data of node
-    if (node.data.inCache == False):
-        extree.totalccost = extree.totalccost + node.data.reCost
-        if (cache.hasSpace(node.data.size)):
-            node.data.inCache = True
+    if (node.data.x_in_cache == False):
+        extree.totalccost = extree.totalccost + node.data.r_cost
+        if (cache.hasSpace(node.data.c_size)):
+            node.data.x_in_cache = True
 
     #print(node.identifier),
     cnt = 0
     for child in extree.tree.is_branch(node.identifier):
         cnt = cnt +1
-        #extree.totalccost = extree.totalccost + node.data.reCost
+        #extree.totalccost = extree.totalccost + node.data.r_cost
         DFSv1(extree.tree.get_node(child),extree,cache)
         print("Cost: " + str(extree.totalccost))
         extree.tree.get_node(child)
