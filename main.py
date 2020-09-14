@@ -4,8 +4,6 @@
 # and storage cost (cost of storing a NodeData).
 
 import ExecutionTree as exT
-from ExecutionTree import Node
-from itertools import compress, product
 from model import DFScomputeCost, optimal
 computeCost = 0
 
@@ -27,7 +25,7 @@ class Cache(object):
 
 def GreedyDFScomputeCost(node,extree):
 
-    for child in extree.tree.children(node.identifier):
+    for child in extree.children(node.identifier):
         GreedyDFScomputeCost(child,extree)
 
     if (node.is_leaf()):
@@ -35,7 +33,7 @@ def GreedyDFScomputeCost(node,extree):
     else:
         # compute y value for all children
         node.data.y = 0  # reinitialize for repeated runs
-        for (child) in extree.tree.children(node.identifier):
+        for (child) in extree.children(node.identifier):
             node.data.y = node.data.y + (1+ (child.data.y-1)*(1-(1 if (child.data.inCache) else 0)))
 
     extree.totalccost = extree.totalccost + node.data.reCost*(node.data.y -1)*(1-(1 if (node.data.inCache) else 0))
@@ -46,20 +44,20 @@ def main():
     cCost = 0
     cache = Cache(20)
 
-    #initialize class
-    exTree = exT.ExecutionTree()
-
     # create a tree
-    # possible types: KARY, BRANCH, FIXED
-    exTree = exTree.createTree(7,5,'BRANCH')
-    #exTree = exTree.createTree(3, 7, 'KARY')
-    #exTree.tree.show()
+    # possible types: FIXED, BRANCH, KARY
+    # ex_tree = exT.create_tree('FIXED')
+    # ex_tree = exT.create_tree('BRANCH', 7, 5)
+    ex_tree = exT.create_tree('KARY', 2, 2)
+
+    # ex_tree.show()
+
     # run algorithms
     # possible types: optimal, greedy1, greedy2
 
     # Algo: OPTIMAL
-    #optimal(exTree)
-    # (rp,np) = paths(exTree.tree.get_node("n0"),exTree.tree)
+    #optimal(ex_tree)
+    # (rp,np) = paths(ex_tree.get_node("n0"),ex_tree)
     # print(rp)
     # print(np)
 
@@ -68,7 +66,7 @@ def main():
 
 
 
-    paths = exTree.tree.paths_to_leaves()
+    paths = ex_tree.paths_to_leaves()
     #print(paths)
 
     def filterPaths(i,paths):
@@ -84,7 +82,7 @@ def main():
          for path in pathswithnode:
              budget = 0
              for node in path:
-                 budget = budget + exTree.tree.get_node(node).data.size * exTree.tree.get_node(node).data.inCache
+                 budget = budget + ex_tree.get_node(node).data.size * ex_tree.get_node(node).data.inCache
 
              if (budget >= cache.cSize):
                  inFeasiblePath = True
@@ -97,15 +95,15 @@ def main():
     while True:
          minComputeCost = 100000
          candidates = []
-         for i in exTree.tree.all_nodes():
+         for i in ex_tree.all_nodes():
              if i.is_leaf() or i.data.inCache == True:
                  continue
              else:
                  if (isCandidateforCaching(i.identifier)):
                     candidates.append(i.identifier)
 
-         #for i in range(exTree.tree.size()):
-         #   if exTree.tree.get_node("n"+str(i)).is_leaf() or exTree.tree.get_node("n" + str(i)).data.inCache == True:
+         #for i in range(ex_tree.size()):
+         #   if ex_tree.get_node("n"+str(i)).is_leaf() or ex_tree.get_node("n" + str(i)).data.inCache == True:
          #       continue
          #   else:
          #       if (isCandidateforCaching(i)):
@@ -117,40 +115,40 @@ def main():
 
          for i in candidates:
             #ignore leaves; they will never be in cache
-            exTree.totalccost = 0
-            if exTree.tree.get_node(i).is_leaf() or exTree.tree.get_node(i).data.inCache == True:
+            ex_tree.totalccost = 0
+            if ex_tree.get_node(i).is_leaf() or ex_tree.get_node(i).data.inCache == True:
                  continue
             else:
-                 exTree.tree.get_node(i).data.inCache = True   #set the node to be inCache temporarily
-                 cCost = GreedyDFScomputeCost(exTree.tree.get_node("n0"), exTree)
+                 ex_tree.get_node(i).data.inCache = True   #set the node to be inCache temporarily
+                 cCost = GreedyDFScomputeCost(ex_tree.get_node("n0"), ex_tree)
                  if (cCost < minComputeCost):
                      minComputeCost = cCost
                      mincostNode = i
-                 exTree.tree.get_node(i).data.inCache = False
+                 ex_tree.get_node(i).data.inCache = False
             #print("id: n" + str(i) + " ccost: " + str(cCost) + " minCost: " + str(minComputeCost))
          print(" minCost: " + str(minComputeCost) + " mincostnode: " + mincostNode)
-    #     #if (cache.hasSpace(exTree.tree.get_node(mincostNode).data.size)):
-    #     cache.insert(exTree.tree.get_node(mincostNode).data.size)
+    #     #if (cache.hasSpace(ex_tree.get_node(mincostNode).data.size)):
+    #     cache.insert(ex_tree.get_node(mincostNode).data.size)
 
-         exTree.tree.get_node(mincostNode).data.inCache = True
+         ex_tree.get_node(mincostNode).data.inCache = True
 
        #else:
     #        print("minCost:" + str(minComputeCost))
     #        break
 
 
-    #cCost = DFSv1(exTree.tree.get_node("n0"), exTree,cache)
+    #cCost = DFSv1(ex_tree.get_node("n0"), ex_tree,cache)
     #print(cCost)
 
 
 
-    #exTree.show(data_property=lambda x: x.NodeData.numChildren)
-    exTree.tree.show(data_property='inCache')
-    #exTree.tree.show()
+    #ex_tree.show(data_property=lambda x: x.NodeData.numChildren)
+    ex_tree.show(data_property='inCache')
+    #ex_tree.show()
 
-    #exTree.reset()
-    #DFScomputeCost(exTree.tree.get_node("n0"),exTree)
-    #optimal(exTree)
+    #ex_tree.reset()
+    #DFScomputeCost(ex_tree.get_node("n0"),ex_tree)
+    optimal(ex_tree)
 
 if __name__ == '__main__':
     main()

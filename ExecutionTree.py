@@ -1,109 +1,118 @@
 import random
-from treelib import Node, Tree
+from functools import singledispatch
+from itertools import islice
 
-class NodeData(object):
+from treelib import Tree
 
-    def __init__(self, rcost, size, inCache):
-        self.reCost = rcost   # corresponds to r in equation
-        self.size = size      # corresponds to c in equation
-        self.inCache = inCache  # corresponds to x in equation
-        self.y = 0              # corresponds to y in equation
+
+class NodeData:
+
+    def __init__(self, r_cost, c_size):
+        self.reCost = r_cost  # corresponds to r in equation
+        self.size = c_size  # corresponds to c in equation
+        self.inCache = False  # corresponds to x in equation
+        self.y = 0  # corresponds to y in equation
         self.marked = False
         self.numChildren = 0
 
     def reset(self):
         self.inCache = False
         self.y = 0
-        self.itBit = 0
+        # self.itBit = 0
         self.numChildren = 0
 
-    #def __getattr__(self, item):
 
 class ExecutionTree(Tree):
-
-    TYPE = ['FIXED','BRANCH','KARY']
-    CCOST = 100
-    STORAGE = 100
-    totalccost = 0
-    def __init__(self):
-        self.tree = Tree()
-
-    def computeCost(self,height):
-        ccost = self.CCOST / height
-        ccost = random.randrange(0 if (ccost-10) < 0 else int(ccost-10),int(ccost+10))
-        if ccost > 0: return ccost
-        else: return 0
-
-    def storageCost(self,height):
-        scost = self.STORAGE * height
-        scost =  random.randrange(0 if (scost - 10) < 0 else int(scost -10), int(scost + 10))
-        if scost > 0: return scost
-        else: return 0
-
-    def createTree(self, k, height,type):
-
-        if (type == self.TYPE[0]):
-            self.tree.create_node("A", "a", data=NodeData(1, 10, False))  # root node\n",
-            self.tree.create_node("B", "b", parent="a", data=NodeData(1, 10, False))
-            self.tree.create_node("C", "c", parent="b", data=NodeData(1, 10, False))
-            self.tree.create_node("D", "d", parent="b", data=NodeData(1, 10, False))
-            self.tree.create_node("E", "e", parent="d", data=NodeData(1, 10, False))
-            self.tree.create_node("F", "f", parent="d", data=NodeData(1, 10, False))
-            self.tree.create_node("G", "g", parent="f", data=NodeData(1, 10, False))
-            self.tree.create_node("H", "h", parent="f", data=NodeData(1, 10, False))
-            self.tree.create_node("I", "i", parent="f", data=NodeData(1, 10, False))
-            self.tree.create_node("J", "j", parent="h", data=NodeData(1, 10, False))
-            self.tree.create_node("K", "k", parent="j", data=NodeData(1, 10, False))
-            self.tree.create_node("L", "l", parent="k", data=NodeData(1, 10, False))
-            self.tree.create_node("M", "m", parent="j", data=NodeData(1, 10, False))
-            self.tree.create_node("N", "n", parent="i", data=NodeData(1, 10, False))
-            self.tree.create_node("O", "o", parent="n", data=NodeData(1, 10, False))
-            return self
-        elif (type == self.TYPE[1]):
-            currheight = 0
-            nodelist = []
-            #nodelist = random.sample(range(int((pow(k,(height+1))-1)/(k-1))),numbranchnodes)
-            #nodelist.sort()
-            #print(nodelist)
-            self.tree.create_node("N0", "n0", data=NodeData(1, 10, False))
-            nodelist.append(0)
-            #print(nodelist)
-            for i in range(1,int((pow(k,(height+1))-1)/(k-1))):
-                if i < int((pow(k, (currheight + 1)) - 1) / (k - 1)):
-                    currheight = currheight
-                else:
-                    currheight = currheight + 1
-                if (random.randint(0, 1)):
-                    if ((int((i - 1) / k) in nodelist)):
-                        self.tree.create_node("N" + str(i), "n" + str(i), parent="n" + str(int((i - 1) / k)),
-                                              data=NodeData(self.computeCost(currheight), self.storageCost(currheight), False))
-                        #self.tree.create_node("N" + str(i), "n" + str(i), parent="n" + str(int((i - 1) / k)),
-                        #                      data = NodeData(1, 10, False))
-                        nodelist.append(i)
-                    else:
-                        continue
-            return self
-        else:
-            currheight = 0
-            self.tree.create_node("N0", "n0", data=NodeData(1, 1, False))
-            currheight = currheight + 1
-            for i in range(1,int((pow(k,(height+1))-1)/(k-1))):
-                if i < int((pow(k,(currheight+1))-1)/(k-1)):
-                    currheight = currheight
-                else:
-                    currheight = currheight + 1
-                #print(i, str(int((i-1)/k)))
-                self.tree.create_node("N" + str(i), "n" + str(i), parent="n" + str(int((i-1)/k)),
-                                    data=NodeData(1, 1, False))
-            return self
-
-            # for i in range(0,depth):
-            #     for j in range(0,k):
-            #         self.tree.create_node("N"+str(cnt),"n"+str(cnt),parent="n"+str((i)),data=NodeData(1,10,False))
-            #         cnt = cnt + 1
-            # return self
-
     def reset(self):
-        for node in self.tree.all_nodes():
+        for node in self.all_nodes():
             node.data.reset()
 
+
+@singledispatch
+def create_tree(creation_type, *args, **kwargs):
+    """Create A Tree Based on Functions decorated with @register_tree_creator"""
+    return create_tree.tree_creator_map[creation_type](*args, **kwargs)
+
+
+@create_tree.register
+def _(creation_type: int, *args, **kwargs):
+    assert 1 <= creation_type <= len(create_tree.tree_creator_map)
+    return next(islice(create_tree.tree_creator_map.values(),
+                       creation_type - 1,
+                       len(create_tree.tree_creator_map)))(*args, **kwargs)
+
+
+create_tree.tree_creator_map = {}
+
+
+def register_tree_creator(creation_type):
+    """Use this decorator to register a tree creator with create_tree"""
+    assert type(creation_type) is not int
+
+    def register(tree_creator):
+        create_tree.tree_creator_map[creation_type] = tree_creator
+        create_tree.__doc__ += f'\n{len(create_tree.tree_creator_map)}. {creation_type}'
+        return tree_creator
+
+    return register
+
+
+def fixed_node_factory(_):
+    """Create a Node of fixed cost and size"""
+    r_cost, c_size = 1, 1
+    return NodeData(r_cost, c_size)
+
+
+def rand_node_factory(height):
+    """Create a Node of random cost and size based on height"""
+    height = max(1, height)
+    r_cost_lim = 100 * height
+    c_size_lim = 100 // height
+    r_cost = random.randint(max(0, r_cost_lim - 10), r_cost_lim + 10)
+    c_size = random.randint(max(0, c_size_lim - 10), c_size_lim + 10)
+    return NodeData(r_cost, c_size)
+
+
+@register_tree_creator('FIXED')
+def fixed_tree_creator(node_factory=fixed_node_factory):
+    """Create A Fixed Tree"""
+    tree = ExecutionTree()
+    tree.create_node("A", "a", data=node_factory(0))  # root node
+    tree.create_node("B", "b", parent="a", data=node_factory(1))
+    tree.create_node("C", "c", parent="b", data=node_factory(2))
+    tree.create_node("D", "d", parent="b", data=node_factory(2))
+    tree.create_node("E", "e", parent="d", data=node_factory(3))
+    tree.create_node("F", "f", parent="d", data=node_factory(3))
+    tree.create_node("G", "g", parent="f", data=node_factory(4))
+    tree.create_node("H", "h", parent="f", data=node_factory(4))
+    tree.create_node("I", "i", parent="f", data=node_factory(4))
+    tree.create_node("J", "j", parent="h", data=node_factory(5))
+    tree.create_node("K", "k", parent="j", data=node_factory(6))
+    tree.create_node("L", "l", parent="k", data=node_factory(7))
+    tree.create_node("M", "m", parent="j", data=node_factory(6))
+    tree.create_node("N", "n", parent="i", data=node_factory(5))
+    tree.create_node("O", "o", parent="n", data=node_factory(6))
+    return tree
+
+
+@register_tree_creator('BRANCH')
+def branch_tree_creator(k, height, node_factory=rand_node_factory):
+    """Create a random k-ary with the given k and height"""
+    tree = ExecutionTree()
+    tree.create_node("N0", "n0", data=node_factory(0))
+    for i in range(1, (k**(height + 1) - 1) // (k - 1)):
+        if random.choice([True, False]) and tree.contains(f'n{(i - 1) // k}'):
+            tree.create_node(f'N{i}', f'n{i}', parent=f'n{(i - 1) // k}',
+                             data=node_factory(tree.depth(f'n{(i - 1) // k}') + 1))
+    return tree
+
+
+@register_tree_creator('KARY')
+def kary_tree_creator(k, height, node_factory=fixed_node_factory):
+    """Create a perfect k-ary tree with the given k and height"""
+    tree = ExecutionTree()
+    tree.create_node("N0", "n0", data=node_factory(0))
+    for i in range(1, (k**(height + 1) - 1) // (k - 1)):
+        tree.create_node(f'N{i}', f'n{i}', parent=f'n{(i - 1) // k}',
+                         data=node_factory(tree.depth(f'n{(i - 1) // k}') + 1))
+    return tree

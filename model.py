@@ -19,14 +19,14 @@ import ExecutionTree
 
 def DFScomputeCost(node,extree):
 
-    for child in extree.tree.children(node.identifier):
+    for child in extree.children(node.identifier):
         DFScomputeCost(child,extree)
 
     if (node.is_leaf()):
         node.data.y = 1
     else:
         # compute y value for all children
-        for (child) in extree.tree.children(node.identifier):
+        for (child) in extree.children(node.identifier):
             node.data.y = node.data.y + (1+ (child.data.y-1)*(1-(1 if (child.data.inCache) else 0)))
 
     return
@@ -94,13 +94,13 @@ def optimal(extree):
 
     model.cachesize = Param(within=NonNegativeReals,initialize=CACHESIZE)
 
-    model.n = Param(within=NonNegativeIntegers,initialize=extree.tree.size())
+    model.n = Param(within=NonNegativeIntegers,initialize=extree.size())
 
-    model.j = RangeSet(1,len(extree.tree.paths_to_leaves()))
+    model.j = RangeSet(1,len(extree.paths_to_leaves()))
 
 
     def path_init(model,j):
-        l = extree.tree.paths_to_leaves()
+        l = extree.paths_to_leaves()
         path = l[j-1]
         return path
     model.path = Param(model.j,within=Any,initialize=path_init)
@@ -112,17 +112,17 @@ def optimal(extree):
     model.one = Param(model.I,within=PositiveIntegers,initialize=1)
 
     def recost_init(model,i):
-        return extree.tree.get_node("n" + str(model.I[i]-1)).data.reCost
+        return extree.get_node("n" + str(model.I[i]-1)).data.reCost
     model.recost = Param(model.I, within=NonNegativeIntegers, initialize=recost_init)
 
     def storage_init(model,i):
-        return extree.tree.get_node("n" + str(model.I[i]-1)).data.size
+        return extree.get_node("n" + str(model.I[i]-1)).data.size
     model.storagecost = Param(model.I, within=NonNegativeIntegers,initialize=storage_init)
 
 
 
     #def Y_init(model,i):
-    #    return extree.tree.get_node("n"+str(model.I[i]-1)).data.y
+    #    return extree.get_node("n"+str(model.I[i]-1)).data.y
     #model.Y = Param(model.I, within=PositiveIntegers,initialize=Y_init)
 
 
@@ -148,22 +148,22 @@ def optimal(extree):
     model.storageConstraint = Constraint(model.j,rule=pathconstraint)
 
     def ycompute(model,i):
-        if extree.tree.get_node("n" + str(model.I[i]-1)).is_leaf():
+        if extree.get_node("n" + str(model.I[i]-1)).is_leaf():
             return (model.Y[i] == 1)
         else:
-            node = extree.tree.get_node("n" + str(model.I[i] - 1))
-            print(extree.tree.children(node.identifier))
-            expr1 = sum(1 + (model.Y[int(child.identifier[1:])+int(1)] - 1) * (1 - model.X[int(child.identifier[1:])+int(1)]) for (child) in extree.tree.children(node.identifier))
+            node = extree.get_node("n" + str(model.I[i] - 1))
+            print(extree.children(node.identifier))
+            expr1 = sum(1 + (model.Y[int(child.identifier[1:])+int(1)] - 1) * (1 - model.X[int(child.identifier[1:])+int(1)]) for (child) in extree.children(node.identifier))
             return (model.Y[i] == expr1)
 
-    #node = extree.tree.get_node("n" + str(1 - 1))
-    #print(extree.tree.children(node.identifier))
+    #node = extree.get_node("n" + str(1 - 1))
+    #print(extree.children(node.identifier))
     model.Yconstraint = Constraint(model.I,rule=ycompute)
 
-    extree.tree.show()
+    extree.show()
     model.construct()
     model.pprint()
-    model.totalcost = Objective(expr=sum((model.recost[i]*(model.Y[i]-1)*(1-model.X[i])) for i in range(1,extree.tree.size()+1)), sense=minimize)
+    model.totalcost = Objective(expr=sum((model.recost[i]*(model.Y[i]-1)*(1-model.X[i])) for i in range(1,extree.size()+1)), sense=minimize)
     symbol_map_filename = write_nl(model,'instance.nl')
 
     sol_filename = 'instance.sol'
