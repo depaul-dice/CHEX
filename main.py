@@ -37,7 +37,7 @@ def main():
     print(f'optimal_dfs Cost = {dfs_cost(ex_tree)}')
     ex_tree.reset()
 
-    optimal(ex_tree, verbose=True)
+    optimal(ex_tree)
     print(f'optimal Cost = {non_dfs_cost(ex_tree)}')
     ex_tree.reset()
 

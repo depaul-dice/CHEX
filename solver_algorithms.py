@@ -70,6 +70,9 @@ def optimal_dfs(ex_tree, verbose=False):
 
     solve(model, verbose)
 
+    if verbose:
+        model.x.display()
+
     for i, node in nodes.values():
         node.data.x_in_cache = bool(round(model.x[i].value))
     if verbose:
@@ -162,7 +165,13 @@ def optimal(ex_tree, verbose=False):
 
     solve(model, verbose)
 
+    if verbose:
+        model.x.display()
+        model.p.display()
+
     for i, node in nodes.values():
-        node.data.x_in_cache = bool(round(model.x[i].value))
+        node.data.x_in_cache = [bool(round(model.x[i, t].value)) for t in range(1 + max_time)]
+        node.data.p_computed = [bool(round(model.p[i, t].value)) for t in range(1 + max_time)]
     if verbose:
         ex_tree.show(data_property='x_in_cache')
+        ex_tree.show(data_property='p_computed')

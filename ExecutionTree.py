@@ -13,9 +13,11 @@ class NodeData:
         self.r_cost = r_cost  # corresponds to r in equation
         self.c_size = c_size  # corresponds to c in equation
         self.x_in_cache = False  # corresponds to x in equation
+        self.p_computed = []  # corresponds to p in equation
 
     def reset(self):
         self.x_in_cache = False
+        self.p_computed = []
 
 
 class ExecutionTree(Tree):

@@ -67,4 +67,4 @@ def dfs_algorithm_v2(ex_tree, verbose=False):
 
 def non_dfs_cost(ex_tree):
     """Compute the cost for a non-DFS solution"""
-    return dfs_cost(ex_tree)
+    return sum(node.data.r_cost * sum(node.data.p_computed) for node in ex_tree.all_nodes_itr())
