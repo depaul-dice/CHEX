@@ -1,6 +1,8 @@
+import os
 from random import randint, choice
 from functools import singledispatch
 from itertools import islice
+from importlib import import_module
 
 from treelib import Tree
 
@@ -104,7 +106,7 @@ def branch_tree_creator(k, height, node_factory=rand_node_factory):
     """Create a random k-ary with the given k and height"""
     tree = ExecutionTree()
     tree.create_node("N0", "n0", data=node_factory(0))
-    for i in range(1, (k**(height + 1) - 1) // (k - 1)):
+    for i in range(1, (k ** (height + 1) - 1) // (k - 1)):
         if choice([True, False]) and tree.contains(f'n{(i - 1) // k}'):
             tree.create_node(f'N{i}', f'n{i}', parent=f'n{(i - 1) // k}',
                              data=node_factory(tree.depth(f'n{(i - 1) // k}') + 1))
@@ -116,7 +118,33 @@ def kary_tree_creator(k, height, node_factory=fixed_node_factory):
     """Create a perfect k-ary tree with the given k and height"""
     tree = ExecutionTree()
     tree.create_node("N0", "n0", data=node_factory(0))
-    for i in range(1, (k**(height + 1) - 1) // (k - 1)):
+    for i in range(1, (k ** (height + 1) - 1) // (k - 1)):
         tree.create_node(f'N{i}', f'n{i}', parent=f'n{(i - 1) // k}',
                          data=node_factory(tree.depth(f'n{(i - 1) // k}') + 1))
+    return tree
+
+
+def dump_size(images_path, sciunit_tree, node):
+    directory_size = 0
+    for (path, dirs, files) in os.walk(os.path.join(images_path, f'criu{sciunit_tree.hash_to_pyint(node.hash)}')):
+        for file in files:
+            directory_size += os.path.getsize(os.path.join(path, file))
+    return max(1, directory_size)
+
+
+@register_tree_creator('SCIUNIT')
+def sciunit_tree_creator(tree_binary, images_path, sciunit_tree_module_path='sciunit_tree'):
+    """Create a tree using the real world sciunit tree"""
+    sciunit_tree = import_module(sciunit_tree_module_path)
+    sciunit_execution_tree, _ = sciunit_tree.tree_load(tree_binary)
+
+    tree = ExecutionTree()
+
+    def recursive_fill(node, parent=None):
+        tree.create_node(node.hash, node.hash, parent=parent.hash if parent else None,
+                         data=NodeData(1, dump_size(images_path, sciunit_tree, node)))
+        for child in node.children:
+            recursive_fill(node.children[child], node)
+
+    recursive_fill(sciunit_execution_tree)
     return tree

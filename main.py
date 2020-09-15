@@ -10,10 +10,11 @@ from solver_algorithms import optimal_dfs
 
 def main():
     # create a tree
-    # possible types: FIXED, BRANCH, KARY
+    # possible types: FIXED, BRANCH, KARY, SCIUNIT
     # ex_tree = exT.create_tree('FIXED')
     # ex_tree = exT.create_tree('BRANCH', 3, 4)
-    ex_tree = exT.create_tree('KARY', 3, 3, lambda h: exT.NodeData(h+1, h+1))
+    ex_tree = exT.create_tree('KARY', 3, 3, lambda h: exT.NodeData(h + 1, h + 1))
+    # ex_tree = exT.create_tree('SCIUNIT', input('Enter Tree Binary: '), input('Enter Images Path: '))
 
     ex_tree.cache_size = 4
 

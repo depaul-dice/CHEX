@@ -4,7 +4,7 @@ from pyomo.environ import *
 from pyomo.opt import ProblemFormat, ReaderFactory, ResultsFormat
 
 MODEL_FILE_NAME = 'instance.nl'
-COUENNE = ['couenne', 'instance']
+COUENNE = ['couenne', 'instance']  # Modify Couenne path here if not present in PATH
 SOLUTION_FILE_NAME = 'instance.sol'
 
 
