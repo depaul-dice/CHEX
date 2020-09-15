@@ -1,5 +1,5 @@
 import os
-from random import randint, choice
+import random
 from functools import singledispatch
 from itertools import islice
 from importlib import import_module
@@ -72,8 +72,8 @@ def rand_node_factory(height):
     height = max(1, height)
     r_cost_lim = 10 * height
     c_size_lim = 10 // height
-    r_cost = randint(max(1, r_cost_lim - 10), r_cost_lim + 10)
-    c_size = randint(max(1, c_size_lim - 10), c_size_lim + 10)
+    r_cost = random.randint(max(1, r_cost_lim - 10), r_cost_lim + 10)
+    c_size = random.randint(max(1, c_size_lim - 10), c_size_lim + 10)
     return NodeData(r_cost, c_size)
 
 
@@ -105,7 +105,7 @@ def branch_tree_creator(k, height, node_factory=rand_node_factory):
     tree = ExecutionTree()
     tree.create_node("N0", "n0", data=node_factory(0))
     for i in range(1, (k ** (height + 1) - 1) // (k - 1)):
-        if choice([True, False]) and tree.contains(f'n{(i - 1) // k}'):
+        if random.choice([True, False]) and tree.contains(f'n{(i - 1) // k}'):
             tree.create_node(f'N{i}', f'n{i}', parent=f'n{(i - 1) // k}',
                              data=node_factory(tree.depth(f'n{(i - 1) // k}') + 1))
     return tree
