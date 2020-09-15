@@ -1,39 +1,32 @@
-import subprocess
+import shutil
 
 from pyomo.environ import *
-from pyomo.opt import ProblemFormat, ReaderFactory, ResultsFormat
 
 from algorithms import dfs_cost
 
-MODEL_FILE_NAME = 'instance.nl'
-COUENNE = ['couenne', 'instance']  # Modify Couenne path here if not present in PATH
-SOLUTION_FILE_NAME = 'instance.sol'
+COUENNE_MAX_TIME = 10
 
 
-def solve(model, verbose):
+def solve(model, _):
     """Solve a given model using Couenne"""
-    _, symbol_map_id = model.write(MODEL_FILE_NAME, format=ProblemFormat.nl)
+    couenne_path = None
+    if not shutil.which('couenne'):
+        print('Couenne not in PATH.')
+        couenne_path = input('Please input path to executable: ')
 
-    try:
-        subprocess.run(COUENNE, capture_output=not verbose)
-    except FileNotFoundError:
-        print('Couenne not found in PATH.')
-        print('Please input path or leave empty to run manually and generate instance.sol')
-        couenne_path = input()
-        if couenne_path:
-            subprocess.run([couenne_path, *COUENNE[1:]], capture_output=not verbose)
+    if not couenne_path:
+        opt = SolverFactory('couenne')
+    else:
+        opt = SolverFactory('couenne', executable=couenne_path)
 
-    with ReaderFactory(ResultsFormat.sol) as reader:
-        results = reader(SOLUTION_FILE_NAME)
-    results._smap_id = symbol_map_id
-
-    model.solutions.load_from(results)
+    opt.options['max_cpu_time'] = COUENNE_MAX_TIME
+    model.solutions.load_from(opt.solve(model))
 
 
 def optimal_dfs(ex_tree, verbose=False):
     """Create a Pyomo model for the optimal DFS problem and solve it"""
     nodes_list = ex_tree.all_nodes()
-    nodes = {node.identifier: (i+1, node) for i, node in enumerate(nodes_list)}
+    nodes = {node.identifier: (i + 1, node) for i, node in enumerate(nodes_list)}
     paths = ex_tree.paths_to_leaves()
 
     model = AbstractModel()
@@ -49,16 +42,16 @@ def optimal_dfs(ex_tree, verbose=False):
     model.paths = Constraint(model.j,
                              rule=lambda m, j: inequality(0,
                                                           sum(nodes[k][1].data.c_size * m.x[nodes[k][0]]
-                                                              for k in paths[j-1]),
+                                                              for k in paths[j - 1]),
                                                           ex_tree.cache_size))
 
     @model.Constraint(model.i)
     def y_constraint(m, i):
-        if nodes_list[i-1].is_leaf():
+        if nodes_list[i - 1].is_leaf():
             return m.y[i] == 1
         else:
             return m.y[i] == sum(1 + (m.y[nodes[child.identifier][0]] - 1) * (1 - m.x[nodes[child.identifier][0]])
-                                 for child in ex_tree.children(nodes_list[i-1].identifier))
+                                 for child in ex_tree.children(nodes_list[i - 1].identifier))
 
     model.construct()
     if verbose:
@@ -86,7 +79,7 @@ def optimal(ex_tree, verbose=False):
         print(f'Max Time: {max_time}')
 
     nodes_list = ex_tree.all_nodes()
-    nodes = {node.identifier: (i+1, node) for i, node in enumerate(nodes_list)}
+    nodes = {node.identifier: (i + 1, node) for i, node in enumerate(nodes_list)}
     paths = ex_tree.paths_to_leaves()
 
     model = AbstractModel()
@@ -126,21 +119,21 @@ def optimal(ex_tree, verbose=False):
     model.cache_consistency_constraint = ConstraintList()
     for i in range(1, 1 + len(nodes)):
         for t in range(1, 1 + max_time):
-            model.cache_consistency_constraint.add(model.x[i, t] * (1 - model.x[i, t-1]) * (1 - model.p[i, t]) == 0)
+            model.cache_consistency_constraint.add(model.x[i, t] * (1 - model.x[i, t - 1]) * (1 - model.p[i, t]) == 0)
 
     # Constraint to make sure an element can be generated only if parent in cache or generated previously
     model.parent_present_constraint = ConstraintList()
     for i in range(1, 1 + len(nodes)):
         if i == nodes[ex_tree.root][0]:
             continue
-        p = nodes[ex_tree.parent(nodes_list[i-1].identifier).identifier][0]
+        p = nodes[ex_tree.parent(nodes_list[i - 1].identifier).identifier][0]
         for t in range(1, 1 + max_time):
             model.parent_present_constraint.add(model.p[i, t] * (1 - model.x[p, t - 1]) * (1 - model.p[p, t - 1]) == 0)
 
     if verbose:
         model.pprint()
 
-    model.total_cost = Objective(expr=sum(node.data.r_cost*model.p[i, t]
+    model.total_cost = Objective(expr=sum(node.data.r_cost * model.p[i, t]
                                           for t in range(1, 1 + max_time)
                                           for i, node in nodes.values()),
                                  sense=minimize)

@@ -30,7 +30,7 @@ def dfs_cost(ex_tree, node=None, force_cost=None):
     return ex_tree.total_r_cost
 
 
-def dfs_algorithm(ex_tree, cost_compare, verbose):
+def dfs_algorithm(ex_tree, cost_compare, verbose=False):
     """General purpose algorithm for DFS using a custom cost comparison function"""
     paths = ex_tree.paths_to_leaves()
     nodes = set(ex_tree.filter_nodes(lambda tree_node: not tree_node.is_leaf()))
