@@ -25,6 +25,8 @@ def main():
     # run algorithms
     # possible types: greedy1, greedy2, optimal_dfs, optimal
 
+    print(f'Without Cache = {dfs_cost(ex_tree)}')
+
     dfs_algorithm_v1(ex_tree)
     print(f'dfs_algorithm_v1 Cost = {dfs_cost(ex_tree)}')
     ex_tree.reset()

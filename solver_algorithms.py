@@ -43,7 +43,7 @@ def optimal_dfs(ex_tree, verbose=False):
     model.i = RangeSet(1, len(nodes))
     model.j = RangeSet(1, len(paths))
 
-    model.x = Var(model.i, within=Binary, initialize=lambda *_: 0)
+    model.x = Var(model.i, domain=Boolean, initialize=lambda *_: 0)
     model.y = Var(model.i, within=PositiveIntegers, initialize=lambda *_: 1)
 
     model.paths = Constraint(model.j,
@@ -97,8 +97,8 @@ def optimal(ex_tree, verbose=False):
     model.i = RangeSet(1, len(nodes))
     model.j = RangeSet(1, len(paths))
 
-    model.x = Var(model.i, model.t, within=Binary, initialize=lambda *_: 0)
-    model.p = Var(model.i, model.t, within=Binary, initialize=lambda *_: 0)
+    model.x = Var(model.i, model.t, domain=Boolean, initialize=lambda *_: 0)
+    model.p = Var(model.i, model.t, domain=Boolean, initialize=lambda *_: 0)
 
     @simple_constraintlist_rule
     def x_time_0_rule(m, i):
@@ -128,7 +128,7 @@ def optimal(ex_tree, verbose=False):
     def produce_one_thing_at_a_time_rule(m, time):
         if time == max_time + 1:
             return None
-        return sum(m.p[i, time] for i in range(1, 1 + len(nodes))) == 1
+        return inequality(0, sum(m.p[i, time] for i in range(1, 1 + len(nodes))), 1)
 
     model.produce_one_thing_constraint = ConstraintList(rule=produce_one_thing_at_a_time_rule)
 
@@ -145,7 +145,7 @@ def optimal(ex_tree, verbose=False):
     model.cache_consistency_constraint = ConstraintList()
     for i in range(1, 1 + len(nodes)):
         for t in range(1, 1 + max_time):
-            model.cache_consistency_constraint.add(model.x[i, t-1] + model.p[i, t] - model.x[i, t] >= 0)
+            model.cache_consistency_constraint.add(model.x[i, t] * (1 - model.x[i, t-1]) * (1 - model.p[i, t]) == 0)
 
     model.parent_present_constraint = ConstraintList()
     for i in range(1, 1 + len(nodes)):
@@ -153,7 +153,7 @@ def optimal(ex_tree, verbose=False):
             continue
         p = nodes[ex_tree.parent(nodes_list[i-1].identifier).identifier][0]
         for t in range(1, 1 + max_time):
-            model.parent_present_constraint.add(model.x[p, t - 1] + model.p[p, t - 1] - model.p[i, t] >= 0)
+            model.parent_present_constraint.add(model.p[i, t] * (1 - model.x[p, t - 1]) * (1 - model.p[p, t - 1]) == 0)
 
     if verbose:
         model.pprint()
