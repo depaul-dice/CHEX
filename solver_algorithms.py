@@ -7,20 +7,16 @@ from algorithms import dfs_cost
 COUENNE_MAX_TIME = 10
 
 
-def solve(model, _):
+def solve(model, verbose=False):
     """Solve a given model using Couenne"""
     couenne_path = None
     if not shutil.which('couenne'):
         print('Couenne not in PATH.')
         couenne_path = input('Please input path to executable: ')
 
-    if not couenne_path:
-        opt = SolverFactory('couenne')
-    else:
-        opt = SolverFactory('couenne', executable=couenne_path)
+    opt = SolverFactory('couenne', executable=couenne_path)
 
-    opt.options['max_cpu_time'] = COUENNE_MAX_TIME
-    model.solutions.load_from(opt.solve(model))
+    model.solutions.load_from(opt.solve(model, tee=verbose))
 
 
 def optimal_dfs(ex_tree, verbose=False):
