@@ -4,8 +4,8 @@
 # and storage cost (cost of storing a NodeData).
 
 import ExecutionTree as exT
-from algorithms import dfs_cost, dfs_algorithm_v1, dfs_algorithm_v2
-from solver_algorithms import optimal_dfs
+from algorithms import dfs_cost, dfs_algorithm_v1, dfs_algorithm_v2, non_dfs_cost
+from solver_algorithms import optimal_dfs, optimal
 
 
 def main():
@@ -18,8 +18,12 @@ def main():
 
     ex_tree.cache_size = 4
 
+    # ex_tree.show()
+    # ex_tree.show(data_property='c_size')
+    # ex_tree.show(data_property='r_cost')
+
     # run algorithms
-    # possible types: greedy1, greedy2, optimal
+    # possible types: greedy1, greedy2, optimal_dfs, optimal
 
     dfs_algorithm_v1(ex_tree)
     print(f'dfs_algorithm_v1 Cost = {dfs_cost(ex_tree)}')
@@ -31,6 +35,10 @@ def main():
 
     optimal_dfs(ex_tree)
     print(f'optimal_dfs Cost = {dfs_cost(ex_tree)}')
+    ex_tree.reset()
+
+    optimal(ex_tree, verbose=True)
+    print(f'optimal Cost = {non_dfs_cost(ex_tree)}')
     ex_tree.reset()
 
 
