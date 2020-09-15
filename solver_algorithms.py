@@ -142,9 +142,7 @@ def optimal(ex_tree, verbose=False):
     model.cache_consistency_constraint = ConstraintList()
     for i in range(1, 1 + len(nodes)):
         for t in range(1, 1 + max_time):
-            model.cache_consistency_constraint.add(inequality(0,
-                                                              model.x[i, t] / (model.x[i, t-1] + model.p[i, t]),
-                                                              1))
+            model.cache_consistency_constraint.add(model.x[i, t-1] + model.p[i, t] - model.x[i, t] >= 0)
 
     model.parent_present_constraint = ConstraintList()
     for i in range(1, 1 + len(nodes)):
@@ -152,9 +150,7 @@ def optimal(ex_tree, verbose=False):
             continue
         p = nodes[ex_tree.parent(nodes_list[i-1].identifier).identifier][0]
         for t in range(1, 1 + max_time):
-            model.parent_present_constraint.add(inequality(0,
-                                                           model.p[i, t] / (model.x[p, t - 1] + model.p[p, t - 1]),
-                                                           1))
+            model.parent_present_constraint.add(model.x[p, t - 1] + model.p[p, t - 1] - model.p[i, t] >= 0)
 
     if verbose:
         model.pprint()
