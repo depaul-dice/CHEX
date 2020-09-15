@@ -27,7 +27,7 @@ def dfs_cost(ex_tree, node=None):
     return ex_tree.total_c_cost
 
 
-def dfs_algorithm(ex_tree, cost_compare):
+def dfs_algorithm(ex_tree, cost_compare, verbose):
     """General purpose algorithm for DFS using a custom cost comparison function"""
     paths = ex_tree.paths_to_leaves()
     nodes = set(ex_tree.filter_nodes(lambda tree_node: not tree_node.is_leaf()))
@@ -44,18 +44,19 @@ def dfs_algorithm(ex_tree, cost_compare):
             break
         min_node.data.x_in_cache = True
         nodes.remove(min_node)
-    print(ex_tree.show(data_property='x_in_cache'))
+    if verbose:
+        print(ex_tree.show(data_property='x_in_cache'))
 
 
-def dfs_algorithm_v1(ex_tree):
+def dfs_algorithm_v1(ex_tree, verbose=False):
     """Run DFS algorithm by comparing just time saved in each iteration"""
-    return dfs_algorithm(ex_tree, lambda new_cost, new_node, min_cost, min_node: new_cost < min_cost)
+    return dfs_algorithm(ex_tree, lambda new_cost, new_node, min_cost, min_node: new_cost < min_cost, verbose)
 
 
-def dfs_algorithm_v2(ex_tree):
+def dfs_algorithm_v2(ex_tree, verbose=False):
     """Run DFS algorithm by comparing time saved per cache usage in each iteration"""
     def cost_compare(new_cost, new_node, min_cost, min_node):
         if min_node is None:
             return True
         return (new_cost / new_node.data.c_size) < (min_cost / min_node.data.c_size)
-    return dfs_algorithm(ex_tree, cost_compare)
+    return dfs_algorithm(ex_tree, cost_compare, verbose)
