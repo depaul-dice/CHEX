@@ -100,53 +100,35 @@ def optimal(ex_tree, verbose=False):
     model.x = Var(model.i, model.t, domain=Boolean, initialize=lambda *_: 0)
     model.p = Var(model.i, model.t, domain=Boolean, initialize=lambda *_: 0)
 
-    @simple_constraintlist_rule
-    def x_time_0_rule(m, i):
-        if i == len(nodes) + 1:
-            return None
-        return m.x[i, 0] == 0
+    model.x_time_0_constraint = Constraint(model.i, rule=lambda m, i: m.x[i, 0] == 0)
+    model.p_time_0_constraint = Constraint(model.i, rule=lambda m, i: m.p[i, 0] == 0)
 
-    model.x_time_0_constraint = ConstraintList(rule=x_time_0_rule)
-
-    @simple_constraintlist_rule
-    def p_time_0_rule(m, i):
-        if i == len(nodes) + 1:
-            return None
-        return m.p[i, 0] == 0
-
-    model.p_time_0_constraint = ConstraintList(rule=p_time_0_rule)
-
-    @simple_constraintlist_rule
-    def cache_size_rule(m, time):
-        if time == max_time + 1:
-            return None
-        return inequality(0, sum(m.x[i, time] * node.data.c_size for i, node in nodes.values()), ex_tree.cache_size)
-
-    model.cache_size_constraint = ConstraintList(rule=cache_size_rule)
-
-    @simple_constraintlist_rule
-    def produce_one_thing_at_a_time_rule(m, time):
-        if time == max_time + 1:
-            return None
-        return inequality(0, sum(m.p[i, time] for i in range(1, 1 + len(nodes))), 1)
-
-    model.produce_one_thing_constraint = ConstraintList(rule=produce_one_thing_at_a_time_rule)
-
-    @simple_constraintlist_rule
-    def produce_everything_at_least_one_rule(m, i):
-        if i == len(nodes) + 1:
-            return None
-        return sum(m.p[i, time] for time in range(1 + max_time)) >= 1
-
-    model.produce_everything_constraint = ConstraintList(rule=produce_everything_at_least_one_rule)
+    # Constraint to make sure cache is not over-filled at any time
+    model.cache_size_constraint = Constraint(model.t,
+                                             rule=lambda m, time: inequality(0,
+                                                                             sum(m.x[i, time] * node.data.c_size
+                                                                                 for i, node in nodes.values()),
+                                                                             ex_tree.cache_size))
+    # Constraint to produce only one thing at a time step
+    model.produce_one_thing_constraint = Constraint(model.t,
+                                                    rule=lambda m, time: inequality(0,
+                                                                                    sum(m.p[i, time]
+                                                                                        for i, _ in nodes.values()),
+                                                                                    1))
+    # Constraint to produce everything at least once
+    model.produce_everything_constraint = Constraint(model.i,
+                                                     rule=lambda m, i: sum(m.p[i, time]
+                                                                           for time in range(1 + max_time)) >= 1)
 
     model.construct()
 
+    # Constraint to make sure an element is in cache only if it was previously in cache or generated now
     model.cache_consistency_constraint = ConstraintList()
     for i in range(1, 1 + len(nodes)):
         for t in range(1, 1 + max_time):
             model.cache_consistency_constraint.add(model.x[i, t] * (1 - model.x[i, t-1]) * (1 - model.p[i, t]) == 0)
 
+    # Constraint to make sure an element can be generated only if parent in cache or generated previously
     model.parent_present_constraint = ConstraintList()
     for i in range(1, 1 + len(nodes)):
         if i == nodes[ex_tree.root][0]:
