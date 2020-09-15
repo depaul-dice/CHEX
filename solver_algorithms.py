@@ -4,11 +4,12 @@ from pyomo.environ import *
 from pyomo.opt import ProblemFormat, ReaderFactory, ResultsFormat
 
 MODEL_FILE_NAME = 'instance.nl'
-COUENNE = ['/home/naganithin/couenne/prefix/bin/couenne', 'instance']
+COUENNE = ['couenne', 'instance']
 SOLUTION_FILE_NAME = 'instance.sol'
 
 
 def solve(model, verbose):
+    """Solve a given model using Couenne"""
     _, symbol_map_id = model.write(MODEL_FILE_NAME, format=ProblemFormat.nl)
 
     try:
@@ -28,6 +29,7 @@ def solve(model, verbose):
 
 
 def optimal_dfs(ex_tree, verbose=False):
+    """Create a Pyomo model for the optimal DFS problem and solve it"""
     nodes_list = ex_tree.all_nodes()
     nodes = {node.identifier: (i+1, node) for i, node in enumerate(nodes_list)}
     paths = ex_tree.paths_to_leaves()
