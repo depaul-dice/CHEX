@@ -10,9 +10,9 @@ get_trees, register_x_param_generator = create_registerer()
 
 
 @register_x_param_generator
-def cache_size(size_range, k=3, height=3):
+def cache_size(size_range, k=3, height=3, tree_type='KARY', node_factory=lambda h: exT.NodeData(h + 1, h + 1)):
     """Iterator for using cache_size on the x-axis"""
-    ex_tree = exT.create_tree('KARY', k, height, lambda h: exT.NodeData(h + 1, h + 1))
+    ex_tree = exT.create_tree(tree_type, k, height, node_factory)
     for size in size_range:
         ex_tree.cache_size = size
         yield size, ex_tree
@@ -20,9 +20,10 @@ def cache_size(size_range, k=3, height=3):
 
 
 @register_x_param_generator
-def k_height(k_height_range, size=4):
+def k_height(k_height_range, size=4, tree_type='KARY', node_factory=lambda h: exT.NodeData(h + 1, h + 1)):
+    """Iterator for using a tree with different k, height"""
     for k, height in k_height_range:
-        ex_tree = exT.create_tree('KARY', k, height, lambda h: exT.NodeData(h + 1, h + 1))
+        ex_tree = exT.create_tree(tree_type, k, height, node_factory)
         ex_tree.cache_size = size
         yield (k, height), ex_tree
 
@@ -39,8 +40,16 @@ def experiment(algorithms, x_param, *args, **kwargs):
             ex_tree.reset()
 
     for algorithm in algorithms:
-        plt.plot(list(range(len(x_range))), y_ranges[algorithm])
+        plt.plot(list(range(len(x_range))), y_ranges[algorithm], label=algorithm.__name__)
 
+    y_label = 'Re-Computation Time'
+    title = f'{y_label} vs. {x_param}{x_range}'
+    plt.title(title)
+    plt.xlabel(x_param)
+    plt.xticks(list(range(len(x_range))), x_range)
+    plt.ylabel(y_label)
+    plt.legend()
+    plt.savefig(f'{title}.svg')
     plt.show()
 
 
