@@ -28,7 +28,7 @@ def k_height(k_height_range, size=4, tree_type='KARY', node_factory=lambda h: ex
         yield (k, height), ex_tree
 
 
-def experiment(algorithms, x_param, *args, **kwargs):
+def experiment(algorithms, x_param, *args, title=None, **kwargs):
 
     x_range = []
     y_ranges = defaultdict(list)
@@ -43,7 +43,8 @@ def experiment(algorithms, x_param, *args, **kwargs):
         plt.plot(list(range(len(x_range))), y_ranges[algorithm], label=algorithm.__name__)
 
     y_label = 'Re-Computation Time'
-    title = f'{y_label} vs. {x_param}{x_range}'
+    if not title:
+        title = f'{y_label} vs. {x_param}{x_range}'
     plt.title(title)
     plt.xlabel(x_param)
     plt.xticks(list(range(len(x_range))), x_range)

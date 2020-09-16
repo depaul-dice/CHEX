@@ -10,9 +10,17 @@ from experiment import test, experiment
 
 def main():
 
-    experiment([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs], 'cache_size', range(1, 1 + 10))
+    # Experiment 1
+    experiment([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs], 'cache_size', range(1, 1 + 10),
+               title='Experiment 1 Cache size Vs Re-computation Cost')
 
-    experiment([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs], 'k_height', [(2, 1), (2, 2), (2, 3), (3, 2)])
+    # Experiment 2
+    experiment([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs], 'k_height', [(k, 3) for k in range(2, 6)],
+               title='Experiment 2 Increasing k Vs Re-computation Cost')
+
+    # Experiment 3
+    experiment([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs], 'k_height', [(2, h) for h in range(2, 6)],
+               title='Experiment 3 Increasing height Vs Re-computation Cost')
 
     test([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs, optimal])
 
