@@ -9,12 +9,14 @@ COUENNE_MAX_TIME = 10
 
 def solve(model, verbose=False):
     """Solve a given model using Couenne"""
-    couenne_path = None
     if not shutil.which('couenne'):
-        print('Couenne not in PATH.')
-        couenne_path = input('Please input path to executable: ')
+        if not hasattr(solve, 'couenne_path'):
+            print('Couenne not in PATH.')
+            solve.couenne_path = input('Please input path to executable: ')
+    else:
+        solve.couenne_path = None
 
-    opt = SolverFactory('couenne', executable=couenne_path)
+    opt = SolverFactory('couenne', executable=solve.couenne_path)
 
     model.solutions.load_from(opt.solve(model, tee=verbose))
 
@@ -76,7 +78,6 @@ def optimal(ex_tree, verbose=False):
 
     nodes_list = ex_tree.all_nodes()
     nodes = {node.identifier: (i + 1, node) for i, node in enumerate(nodes_list)}
-    paths = ex_tree.paths_to_leaves()
 
     model = AbstractModel()
 
@@ -84,7 +85,6 @@ def optimal(ex_tree, verbose=False):
     # so all indexes have to be subtracted from 1 for ex_tree
     model.t = RangeSet(0, max_time)
     model.i = RangeSet(1, len(nodes))
-    model.j = RangeSet(1, len(paths))
 
     model.x = Var(model.i, model.t, domain=Boolean, initialize=lambda *_: 0)
     model.p = Var(model.i, model.t, domain=Boolean, initialize=lambda *_: 0)
