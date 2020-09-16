@@ -32,7 +32,7 @@ def main():
 
     # Experiment 5
     experiment([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs], 'k_height',
-               [(2, h) for h in range(2, 7)]+[(3, h) for h in range(2, 5)],
+               [(2, h) for h in range(2, 6)]+[(3, h) for h in range(2, 5)],
                size=10, node_factory=lambda h: exT.NodeData(h + 1, 10 - h),
                title='Experiment 5 Increasing k, height Vs Re-computation Cost with storage size at top')
 

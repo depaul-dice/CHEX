@@ -56,6 +56,7 @@ def experiment(algorithms, x_param, *args, title=None, **kwargs):
     plt.legend()
     plt.savefig(f'{title}.svg')
     plt.show()
+    plt.clf()
 
 
 def test(algorithms):
