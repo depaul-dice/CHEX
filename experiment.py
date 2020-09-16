@@ -30,10 +30,14 @@ def k_height(k_height_range, size=4, tree_type='KARY', node_factory=lambda h: ex
 
 def experiment(algorithms, x_param, *args, title=None, **kwargs):
 
+    if title:
+        print(title)
     x_range = []
     y_ranges = defaultdict(list)
     for x, ex_tree in get_trees(x_param, *args, **kwargs):
         x_range.append(x)
+        if title:
+            print(f'x = {x}')
         for algorithm in algorithms:
             algorithm(ex_tree)
             y_ranges[algorithm].append(cost(ex_tree))

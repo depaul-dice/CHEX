@@ -3,6 +3,7 @@
 # Input is a tree with nodes labels of compute cost (cost to compute the node)
 # and storage cost (cost of storing a NodeData).
 
+import ExecutionTree as exT
 from algorithms import dfs_algorithm_v1, dfs_algorithm_v2
 from solver_algorithms import optimal_dfs, optimal
 from experiment import test, experiment
@@ -19,8 +20,21 @@ def main():
                title='Experiment 2 Increasing k Vs Re-computation Cost')
 
     # Experiment 3
-    experiment([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs], 'k_height', [(2, h) for h in range(2, 6)],
+    experiment([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs], 'k_height', [(2, h) for h in range(2, 7)],
+               size=10,
                title='Experiment 3 Increasing height Vs Re-computation Cost')
+
+    # Experiment 4
+    experiment([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs], 'k_height',
+               [(2, h) for h in range(2, 7)]+[(3, h) for h in range(2, 5)],
+               size=10, node_factory=lambda h: exT.NodeData(10 - h, h + 1),
+               title='Experiment 4 Increasing k, height Vs Re-computation Cost with computation cost at top')
+
+    # Experiment 5
+    experiment([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs], 'k_height',
+               [(2, h) for h in range(2, 7)]+[(3, h) for h in range(2, 5)],
+               size=10, node_factory=lambda h: exT.NodeData(h + 1, 10 - h),
+               title='Experiment 5 Increasing k, height Vs Re-computation Cost with storage size at top')
 
     test([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs, optimal])
 
