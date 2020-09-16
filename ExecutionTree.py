@@ -1,10 +1,10 @@
 import os
 import random
-from functools import singledispatch
-from itertools import islice
 from importlib import import_module
 
 from treelib import Tree
+
+from util import create_registerer
 
 
 class NodeData:
@@ -27,38 +27,7 @@ class ExecutionTree(Tree):
             node.data.reset()
 
 
-@singledispatch
-def create_tree(creation_type, *args, **kwargs):
-    """Create A Tree Based on Functions decorated with @register_tree_creator"""
-    return create_tree.tree_creator_map[creation_type](*args, **kwargs)
-
-
-@create_tree.register
-def _(creation_type: int, *args, **kwargs):
-    """Alternative that finds the function using index rather than the key"""
-    assert 1 <= creation_type <= len(create_tree.tree_creator_map)
-    return next(islice(create_tree.tree_creator_map.values(),
-                       creation_type - 1,
-                       len(create_tree.tree_creator_map)))(*args, **kwargs)
-
-
-create_tree.tree_creator_map = {}
-
-
-def register_tree_creator(creation_type):
-    """Use this decorator to register a tree creator with create_tree"""
-    assert not isinstance(creation_type, int)
-
-    def register(tree_creator):
-        create_tree.tree_creator_map[creation_type] = tree_creator
-        create_tree.__doc__ += f'\n{len(create_tree.tree_creator_map)}. {creation_type}'
-        return tree_creator
-
-    if callable(creation_type):
-        creator, creation_type = creation_type, creation_type.__name__
-        return register(creator)
-    else:
-        return register
+create_tree, register_tree_creator = create_registerer()
 
 
 def fixed_node_factory(_):

@@ -2,7 +2,7 @@ import shutil
 
 from pyomo.environ import *
 
-from algorithms import dfs_cost
+from util import dfs_cost
 
 COUENNE_MAX_TIME = 10
 

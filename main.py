@@ -3,45 +3,18 @@
 # Input is a tree with nodes labels of compute cost (cost to compute the node)
 # and storage cost (cost of storing a NodeData).
 
-import ExecutionTree as exT
-from algorithms import dfs_cost, dfs_algorithm_v1, dfs_algorithm_v2, non_dfs_cost
+from algorithms import dfs_algorithm_v1, dfs_algorithm_v2
 from solver_algorithms import optimal_dfs, optimal
+from experiment import test, experiment
 
 
 def main():
-    # create a tree
-    # possible types: FIXED, BRANCH, KARY, SCIUNIT
-    # ex_tree = exT.create_tree('FIXED')
-    # ex_tree = exT.create_tree('BRANCH', 3, 4)
-    ex_tree = exT.create_tree('KARY', 3, 3, lambda h: exT.NodeData(h + 1, h + 1))
-    # ex_tree = exT.create_tree('SCIUNIT', input('Enter Tree Binary: '), input('Enter Images Path: '))
 
-    ex_tree.cache_size = 4
+    experiment([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs], 'cache_size', range(1, 1 + 10))
 
-    # ex_tree.show()
-    # ex_tree.show(data_property='c_size')
-    # ex_tree.show(data_property='r_cost')
+    experiment([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs], 'k_height', [(2, 1), (2, 2), (2, 3), (3, 2)])
 
-    # run algorithms
-    # possible types: greedy1, greedy2, optimal_dfs, optimal
-
-    print(f'Without Cache = {dfs_cost(ex_tree)}')
-
-    dfs_algorithm_v1(ex_tree)
-    print(f'dfs_algorithm_v1 Cost = {dfs_cost(ex_tree)}')
-    ex_tree.reset()
-
-    dfs_algorithm_v2(ex_tree)
-    print(f'dfs_algorithm_v2 Cost = {dfs_cost(ex_tree)}')
-    ex_tree.reset()
-
-    optimal_dfs(ex_tree)
-    print(f'optimal_dfs Cost = {dfs_cost(ex_tree)}')
-    ex_tree.reset()
-
-    optimal(ex_tree)
-    print(f'optimal Cost = {non_dfs_cost(ex_tree)}')
-    ex_tree.reset()
+    test([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs, optimal])
 
 
 if __name__ == '__main__':
