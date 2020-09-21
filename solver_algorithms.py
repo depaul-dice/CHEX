@@ -106,25 +106,27 @@ def optimal(ex_tree, verbose=False):
                                                                                     1))
     # Constraint to produce everything at least once
     model.produce_everything_constraint = Constraint(model.i,
-                                                     rule=lambda m, i: sum(m.p[i, time]
-                                                                           for time in range(1 + max_time)) >= 1)
-
-    model.construct()
+                                                     rule=lambda m, i: sum(m.p[i, t]
+                                                                           for t in range(1, 1 + max_time)) >= 1)
 
     # Constraint to make sure an element is in cache only if it was previously in cache or generated now
-    model.cache_consistency_constraint = ConstraintList()
-    for i in range(1, 1 + len(nodes)):
-        for t in range(1, 1 + max_time):
-            model.cache_consistency_constraint.add(model.x[i, t] * (1 - model.x[i, t - 1]) * (1 - model.p[i, t]) == 0)
+    model.cache_consistency_constraint = Constraint(model.i,
+                                                    rule=lambda m, i: sum(m.x[i, t] *
+                                                                          (1 - m.x[i, t - 1]) *
+                                                                          (1 - m.p[i, t])
+                                                                          for t in range(1, 1 + max_time)) == 0)
 
     # Constraint to make sure an element can be generated only if parent in cache or generated previously
-    model.parent_present_constraint = ConstraintList()
-    for i in range(1, 1 + len(nodes)):
+    @model.Constraint(model.i)
+    def cache_consistency_constraint(m, i):
         if i == nodes[ex_tree.root][0]:
-            continue
-        p = nodes[ex_tree.parent(nodes_list[i - 1].identifier).identifier][0]
-        for t in range(1, 1 + max_time):
-            model.parent_present_constraint.add(model.p[i, t] * (1 - model.x[p, t - 1]) * (1 - model.p[p, t - 1]) == 0)
+            return Constraint.Feasible
+        else:
+            p = nodes[ex_tree.parent(nodes_list[i - 1].identifier).identifier][0]
+            return sum(m.p[i, t] * (1 - m.x[p, t - 1]) * (1 - m.p[p, t - 1])
+                       for t in range(1, 1 + max_time)) == 0
+
+    model.construct()
 
     if verbose:
         model.pprint()

@@ -59,12 +59,12 @@ def experiment(algorithms, x_param, *args, title=None, **kwargs):
     plt.clf()
 
 
-def test(algorithms):
+def test(algorithms, verbose=False):
     # create a tree
     # possible types: FIXED, BRANCH, KARY, SCIUNIT
     # ex_tree = exT.create_tree('FIXED')
     # ex_tree = exT.create_tree('BRANCH', 3, 4)
-    ex_tree = exT.create_tree('KARY', 2, 3, lambda h: exT.NodeData(h + 1, h + 1))
+    ex_tree = exT.create_tree('KARY', 3, 3, lambda h: exT.NodeData(h + 1, h + 1))
     # ex_tree = exT.create_tree('SCIUNIT', input('Enter Tree Binary: '), input('Enter Images Path: '))
 
     ex_tree.cache_size = 4
@@ -79,6 +79,6 @@ def test(algorithms):
     print(f'Without Cache = {cost(ex_tree)}')
 
     for algorithm in algorithms:
-        algorithm(ex_tree)
+        algorithm(ex_tree, verbose)
         print(f'{algorithm.__name__} Cost = {cost(ex_tree)}')
         ex_tree.reset()
