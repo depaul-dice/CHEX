@@ -118,7 +118,7 @@ def optimal(ex_tree, verbose=False):
 
     # Constraint to make sure an element can be generated only if parent in cache or generated previously
     @model.Constraint(model.i)
-    def cache_consistency_constraint(m, i):
+    def parent_present_constraint(m, i):
         if i == nodes[ex_tree.root][0]:
             return Constraint.Feasible
         else:
