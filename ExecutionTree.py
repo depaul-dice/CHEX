@@ -1,4 +1,3 @@
-import os
 import random
 from importlib import import_module
 
@@ -91,16 +90,8 @@ def kary_tree_creator(k, height, node_factory=fixed_node_factory):
     return tree
 
 
-def dump_size(images_path, sciunit_tree, node):
-    directory_size = 0
-    for (path, dirs, files) in os.walk(os.path.join(images_path, f'criu{sciunit_tree.hash_to_pyint(node.hash)}')):
-        for file in files:
-            directory_size += os.path.getsize(os.path.join(path, file))
-    return max(1, directory_size)
-
-
 @register_tree_creator('SCIUNIT')
-def sciunit_tree_creator(tree_binary, images_path, sciunit_tree_module_path='sciunit_tree'):
+def sciunit_tree_creator(tree_binary, sciunit_tree_module_path='sciunit_tree'):
     """Create a tree using the real world sciunit tree"""
     sciunit_tree = import_module(sciunit_tree_module_path)
     sciunit_execution_tree, _ = sciunit_tree.tree_load(tree_binary)
@@ -109,9 +100,10 @@ def sciunit_tree_creator(tree_binary, images_path, sciunit_tree_module_path='sci
 
     def recursive_fill(node, parent=None):
         tree.create_node(node.hash, node.hash, parent=parent.hash if parent else None,
-                         data=NodeData(1, dump_size(images_path, sciunit_tree, node)))
+                         data=NodeData(node.time, node.size))
         for child in node.children:
             recursive_fill(node.children[child], node)
 
+    sciunit_execution_tree.time = sciunit_execution_tree.size = 1
     recursive_fill(sciunit_execution_tree)
     return tree

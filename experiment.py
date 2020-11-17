@@ -64,10 +64,8 @@ def test(algorithms, verbose=False):
     # possible types: FIXED, BRANCH, KARY, SCIUNIT
     # ex_tree = exT.create_tree('FIXED')
     # ex_tree = exT.create_tree('BRANCH', 3, 4)
-    ex_tree = exT.create_tree('KARY', 3, 3, lambda h: exT.NodeData(h + 1, h + 1))
-    # ex_tree = exT.create_tree('SCIUNIT', input('Enter Tree Binary: '), input('Enter Images Path: '))
-
-    ex_tree.cache_size = 4
+    # ex_tree = exT.create_tree('KARY', 3, 3, lambda h: exT.NodeData(h + 1, h + 1))
+    ex_tree = exT.create_tree('SCIUNIT', 'tree.bin')
 
     # ex_tree.show()
     # ex_tree.show(data_property='c_size')
@@ -79,6 +77,8 @@ def test(algorithms, verbose=False):
     print(f'Without Cache = {cost(ex_tree)}')
 
     for algorithm in algorithms:
-        algorithm(ex_tree, verbose)
-        print(f'{algorithm.__name__} Cost = {cost(ex_tree)}')
-        ex_tree.reset()
+        for cache_sz in [i * 1024 ** 3 for i in range(1, 10)]:
+            ex_tree.cache_size = cache_sz
+            algorithm(ex_tree, verbose)
+            print(f'{algorithm.__name__} Cost (Cache:{cache_sz}) = {cost(ex_tree)}')
+            ex_tree.reset()
