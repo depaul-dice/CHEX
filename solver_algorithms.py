@@ -3,6 +3,7 @@ import shutil
 from pyomo.environ import *
 
 from util import dfs_cost
+from algorithms import dfs_algorithm_v1
 
 COUENNE_MAX_TIME = 10
 
@@ -72,7 +73,9 @@ def optimal_dfs(ex_tree, verbose=False):
 
 def optimal(ex_tree, verbose=False):
     """Create a Pyomo model for the optimal problem and solve it"""
+    dfs_algorithm_v1(ex_tree, verbose)
     max_time = dfs_cost(ex_tree, force_cost=1)
+    ex_tree.reset()
     if verbose:
         print(f'Max Time: {max_time}')
 
