@@ -8,16 +8,16 @@ from algorithms import dfs_algorithm_v1
 COUENNE_MAX_TIME = 10
 
 
-def solve(model, verbose=False):
+def _couenne_solve(model, verbose=False):
     """Solve a given model using Couenne"""
     if not shutil.which('couenne'):
-        if not hasattr(solve, 'couenne_path'):
+        if not hasattr(_couenne_solve, 'couenne_path'):
             print('Couenne not in PATH.')
-            solve.couenne_path = input('Please input path to executable: ')
+            _couenne_solve.couenne_path = input('Please input path to executable: ')
     else:
-        solve.couenne_path = None
+        _couenne_solve.couenne_path = None
 
-    opt = SolverFactory('couenne', executable=solve.couenne_path)
+    opt = SolverFactory('couenne', executable=_couenne_solve.couenne_path)
 
     model.solutions.load_from(opt.solve(model, tee=verbose))
 
@@ -60,7 +60,7 @@ def optimal_dfs(ex_tree, verbose=False):
                                           for i, node in nodes.values()),
                                  sense=minimize)
 
-    solve(model, verbose)
+    _couenne_solve(model, verbose)
 
     if verbose:
         model.x.display()
@@ -139,7 +139,7 @@ def optimal(ex_tree, verbose=False):
                                           for i, node in nodes.values()),
                                  sense=minimize)
 
-    solve(model, verbose)
+    _couenne_solve(model, verbose)
 
     if verbose:
         model.x.display()

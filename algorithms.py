@@ -1,7 +1,7 @@
 from util import dfs_cost
 
 
-def check_constraints(ex_tree, node, paths):
+def _check_constraints(ex_tree, node, paths):
     """Check if any cache constraints are violated along the paths where the node is present"""
     for path in paths:
         if node.identifier in path:
@@ -20,7 +20,7 @@ def dfs_algorithm(ex_tree, cost_compare, verbose=False):
         min_node, min_cost = None, float('inf')
         for node in nodes:
             node.data.x_in_cache = True
-            if check_constraints(ex_tree, node, paths):
+            if _check_constraints(ex_tree, node, paths):
                 if cost_compare(new_cost := dfs_cost(ex_tree), node, min_cost, min_node):
                     min_node, min_cost = node, new_cost
             node.data.x_in_cache = False
