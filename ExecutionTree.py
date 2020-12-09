@@ -13,10 +13,12 @@ class NodeData:
         self.c_size = c_size  # corresponds to c in equation
         self.x_in_cache = False  # corresponds to x in equation
         self.p_computed = []  # corresponds to p in equation
+        self.recursive_cache = {}
 
     def reset(self):
         self.x_in_cache = False
         self.p_computed = []
+        self.recursive_cache = {}
 
 
 class ExecutionTree(Tree):
