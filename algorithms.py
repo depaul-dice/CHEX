@@ -114,4 +114,5 @@ def recurse_algorithm(ex_tree, verbose=False):
     if verbose:
         ex_tree.show(data_property='recursive_cache')
         print(f'{total_cost_ret=}')
+    ex_tree.total_cost = total_cost_ret
     return total_cost_ret

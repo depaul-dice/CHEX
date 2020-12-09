@@ -1,6 +1,5 @@
 from functools import singledispatch
 from itertools import islice
-from algorithms import recurse_algorithm
 
 
 def create_registerer():
@@ -69,6 +68,6 @@ def cost(ex_tree):
     if ex_tree.get_node(ex_tree.root).data.p_computed:
         return non_dfs_cost(ex_tree)
     elif ex_tree.get_node(ex_tree.root).data.recursive_cache:
-        return recurse_algorithm(ex_tree)
+        return ex_tree.total_cost
     else:
         return dfs_cost(ex_tree)
