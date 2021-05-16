@@ -1,4 +1,8 @@
 import random
+import time
+from collections import defaultdict as ddict
+
+from matplotlib import pyplot as plt
 
 import ExecutionTree as exT
 from util import cost
@@ -22,12 +26,9 @@ def plot_real(verbose=False):
 
     algos = [dfs_algorithm_v1, dfs_algorithm_v2, recurse_algorithm]
     linshapes = ['*-', '.-', 'x-']
-    
-    from collections import defaultdict as ddict
+
     data = ddict(dict)
-    
-    from matplotlib import pyplot as plt
-    
+
     for t, tmems in zip(trees, mems):
         ex_tree = exT.create_tree('SCIUNIT', t)
         for algorithm, l in zip(algos, linshapes):
@@ -82,12 +83,9 @@ def plot_synthetic(verbose=False):
 
     algos = [dfs_algorithm_v1, dfs_algorithm_v2, recurse_algorithm]
     linshapes = ['*-', '.-', 'x-']
-    
-    from collections import defaultdict as ddict
+
     data = ddict(dict)
-    
-    from matplotlib import pyplot as plt
-    
+
     for t, tmems in zip(tree_args, mems):
         ex_tree = exT.create_tree('BRANCH', *t)
         for algorithm, l in zip(algos, linshapes):
@@ -108,8 +106,6 @@ def plot_synthetic(verbose=False):
         plt.clf()
 
 def plot_algotime(verbose=False):
-    import time
-    from collections import defaultdict as ddict
     data = ddict(list)
 
     tree_args = [(3, 2), (3, 3), (3, 4), (3, 5)]
