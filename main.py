@@ -7,10 +7,12 @@ import ExecutionTree as exT
 from algorithms import dfs_algorithm_v1, dfs_algorithm_v2
 from solver_algorithms import optimal_dfs, optimal
 from experiment import test, experiment
+from plot import plot_real, plot_synthetic, plot_algotime
 
 
 def main():
 
+    '''
     # Experiment 1
     experiment([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs], 'cache_size', range(1, 1 + 10),
                title='Experiment 1 Cache size Vs Re-computation Cost')
@@ -37,6 +39,10 @@ def main():
                title='Experiment 5 Increasing k, height Vs Re-computation Cost with storage size at top')
 
     test([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs, optimal])
+    '''
+    plot_real()
+    plot_synthetic()
+    plot_algotime()
 
 
 if __name__ == '__main__':
