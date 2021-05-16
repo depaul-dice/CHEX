@@ -49,7 +49,7 @@ def dfs_algorithm_v2(ex_tree, verbose=False):
 
 def recurse_algorithm(ex_tree, verbose=False):
 
-    def recurse(node, cache):
+    def recurse(node, cache, parent_cost=0):
         if cache in node.data.recursive_cache:
             return sum(recurse(cache_node, cache - (node.data.c_size if cached else 0))
                        if cache_node != node
@@ -66,13 +66,13 @@ def recurse_algorithm(ex_tree, verbose=False):
 
         if cache < node.data.c_size:
             for child in ex_tree.children(node.identifier):
-                with_extra_cache.append((recurse(child, cache), child))
+                with_extra_cache.append((recurse(child, cache, node.data.r_cost + parent_cost), child))
         else:
             tie_breaker = count()
             for child in ex_tree.children(node.identifier):
                 less_cache_cost = recurse(child, cache - node.data.c_size)
-                more_cache_cost = recurse(child, cache)
-                if less_cache_cost - more_cache_cost <= node.data.r_cost:
+                more_cache_cost = recurse(child, cache, node.data.r_cost + parent_cost)
+                if less_cache_cost - more_cache_cost <= node.data.r_cost + parent_cost:
                     without_extra_cache.append((less_cache_cost - more_cache_cost, next(tie_breaker),
                                                 less_cache_cost, child))
                 else:
@@ -99,7 +99,7 @@ def recurse_algorithm(ex_tree, verbose=False):
                     first = False
                 else:
                     node.data.recursive_cache[cache].append((node, False))
-                    total_cost += node.data.r_cost
+                    total_cost += node.data.r_cost + parent_cost
                 node.data.recursive_cache[cache].append((child, False))
                 total_cost += more_cache_cost
         else:
