@@ -1,5 +1,7 @@
-from util import dfs_cost
+import sys
+from util import dfs_cost, paths_to_leaves, checkpoints_restores
 from itertools import count
+from collections import defaultdict as ddict
 
 
 def _check_constraints(ex_tree, node, paths):
@@ -84,6 +86,7 @@ def recurse_algorithm(ex_tree, verbose=False):
             print('with_extra_cache', *with_extra_cache, sep='\n')
 
         if without_extra_cache:
+            node.data.recursive_cache[cache][0] = (node, True)
             without_extra_cache.sort()
             # Process items where all use parent in cache
             for _, _, less_cache_cost, child in without_extra_cache:
@@ -115,4 +118,33 @@ def recurse_algorithm(ex_tree, verbose=False):
         ex_tree.show(data_property='recursive_cache')
         print(f'{total_cost_ret=}')
     ex_tree.total_cost = total_cost_ret
+    ex_tree.map_size = sys.getsizeof(ex_tree)
+    ex_tree.c_r = checkpoints_restores(ex_tree)
     return total_cost_ret
+
+
+def online_algorithm(ex_tree, verbose=False):
+    ex_tree.get_node(ex_tree.root).data.recursive_cache = True
+    ex_tree.total_cost = 0
+    freq = ddict(int)
+    depth = {}
+    cache = {}
+    for path in paths_to_leaves(ex_tree):
+        next_d = 0
+        for d, node in enumerate(path):
+            freq[node] += 1
+            depth[node] = d
+            if node in cache: next_d = d + 1
+        while next_d < len(path):
+            ex_tree.total_cost += node.data.r_cost
+            node = path[next_d]
+            next_d += 1
+            cache_nodes = list(cache)
+            cache_nodes.append(node)
+            cache[node] = node.data.c_size
+            cache_nodes.sort(key=lambda n: (freq[n], -depth[n]))
+            new_cache = {}
+            while cache_nodes and sum(new_cache.values()) + cache[cache_nodes[-1]] <= ex_tree.cache_size:
+                new_cache[cache_nodes[-1]] = cache[cache_nodes[-1]]
+                cache_nodes.pop()
+            cache = new_cache

@@ -7,7 +7,7 @@ import ExecutionTree as exT
 from algorithms import dfs_algorithm_v1, dfs_algorithm_v2
 from solver_algorithms import optimal_dfs, optimal
 from experiment import test, experiment
-from plot import plot_real, plot_synthetic, plot_algotime
+from plot import *
 
 
 def main():
@@ -40,9 +40,11 @@ def main():
 
     test([dfs_algorithm_v1, dfs_algorithm_v2, optimal_dfs, optimal])
     '''
-    plot_real()
-    plot_synthetic()
-    plot_algotime()
+    plot_real(verbose=True)
+    plot_synthetic(verbose=True)
+    plot_storage(verbose=True)
+    plot_cr(verbose=True)
+    plot_algotime(verbose=True)
 
 
 if __name__ == '__main__':

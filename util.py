@@ -71,3 +71,54 @@ def cost(ex_tree):
         return ex_tree.total_cost
     else:
         return dfs_cost(ex_tree)
+
+
+def _min_max_depth(ex_tree, node=None):
+    if node is None:
+        node = ex_tree.root
+    depths = []
+    for child in ex_tree.children(node):
+        depths.extend(_min_max_depth(ex_tree, child.identifier))
+    if not depths: return 1, 1
+    return 1 + min(depths), 1 + max(depths)
+
+def print_info(ex_tree, name=''):
+    if name: print(name)
+    print('Leaves', len(ex_tree.leaves(ex_tree.root)))
+    print('Total Cost', cost(ex_tree))
+    print('Min Cost', min(node.data.r_cost for node in ex_tree.all_nodes()
+                          if node.data.r_cost != 0))
+    print('Max Cost', max(node.data.r_cost for node in ex_tree.all_nodes()))
+    print('Total Storage', sum(node.data.c_size for node in ex_tree.all_nodes()))
+    print('Min Storage', min(node.data.c_size for node in ex_tree.all_nodes()))
+    print('Max Storage', max(node.data.c_size for node in ex_tree.all_nodes()
+                             if node.data.c_size != float('inf')))
+    print('Min/Max Depths', *_min_max_depth(ex_tree))
+
+
+def paths_to_leaves(ex_tree, node_path=None):
+    if node_path is None:
+        node, path = ex_tree.get_node(ex_tree.root), []
+    else:
+        node, path = node_path
+    path.append(node)
+    if node.is_leaf():
+        yield path.copy()
+    else:
+        for child in ex_tree.children(node.identifier):
+            yield from paths_to_leaves(ex_tree, node_path=(child, path))
+    assert path.pop() == node
+
+
+def checkpoints_restores(ex_tree):
+    def recurse(node, cache):
+        cr = 0
+        for child, p_in_c in node.data.recursive_cache[cache]:
+            if p_in_c: cr += 1
+            if child is not node:
+                cr += recurse(child, cache - (node.data.c_size
+                                              if p_in_c else 0))
+        return cr
+
+    return recurse(ex_tree.get_node(ex_tree.root), ex_tree.cache_size)
+

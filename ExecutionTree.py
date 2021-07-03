@@ -1,3 +1,4 @@
+import sys
 import random
 from importlib import import_module
 
@@ -20,12 +21,20 @@ class NodeData:
         self.p_computed = []
         self.recursive_cache = {}
 
+    def __sizeof__(self):
+        return sum(sys.getsizeof(self.recursive_cache[cache])
+                   for cache in self.recursive_cache)
+
 
 class ExecutionTree(Tree):
 
     def reset(self):
         for node in self.all_nodes_itr():
             node.data.reset()
+
+    def __sizeof__(self):
+        return sum(sys.getsizeof(node.data)
+                   for node in self.all_nodes_itr())
 
 
 create_tree, register_tree_creator = create_registerer()
@@ -92,6 +101,15 @@ def kary_tree_creator(k, height, node_factory=fixed_node_factory):
     return tree
 
 
+@register_tree_creator('SIZE')
+def kary_tree_creator(leaves, k, height, node_factory=fixed_node_factory):
+    """Create a k-ary tree with the given size, max k and height"""
+    assert leaves <= (k ** (height + 1) - 1) // (k - 1)
+    while True:
+        tree = branch_tree_creator(k, height, node_factory)
+        if tree.size() == leaves: return tree
+
+
 @register_tree_creator('SCIUNIT')
 def sciunit_tree_creator(tree_binary, sciunit_tree_module_path='sciunit_tree'):
     """Create a tree using the real world sciunit tree"""
@@ -106,6 +124,7 @@ def sciunit_tree_creator(tree_binary, sciunit_tree_module_path='sciunit_tree'):
         for child in node.children:
             recursive_fill(node.children[child], node)
 
-    sciunit_execution_tree.time = sciunit_execution_tree.size = 1
+    sciunit_execution_tree.time = 0
+    sciunit_execution_tree.size = float('inf')
     recursive_fill(sciunit_execution_tree)
     return tree
