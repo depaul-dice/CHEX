@@ -7,6 +7,9 @@ from treelib import Tree
 from util import create_registerer
 
 
+ENABLE_MAX_HINT = True
+
+
 class NodeData:
 
     def __init__(self, r_cost, c_size):
@@ -78,16 +81,23 @@ def fixed_tree_creator(node_factory=fixed_node_factory):
     return tree
 
 
-@register_tree_creator('BRANCH')
-def branch_tree_creator(k, height, node_factory=rand_node_factory):
-    """Create a random k-ary with the given k and height"""
+def _branch_tree_creator_with_hint(k, height, max_nodes, max_leaves, node_factory):
     tree = ExecutionTree()
     tree.create_node("N0", "n0", data=node_factory(0))
     for i in range(1, (k ** (height + 1) - 1) // (k - 1)):
         if random.choice([True, False]) and tree.contains(f'n{(i - 1) // k}'):
             tree.create_node(f'N{i}', f'n{i}', parent=f'n{(i - 1) // k}',
                              data=node_factory(tree.depth(f'n{(i - 1) // k}') + 1))
+        if ENABLE_MAX_HINT:
+            if max_nodes and len(tree) == max_nodes: return tree
+            if max_leaves and len(tree.leaves()) == max_leaves: return tree
     return tree
+
+
+@register_tree_creator('BRANCH')
+def branch_tree_creator(k, height, node_factory=rand_node_factory):
+    """Create a random k-ary with the given k and height"""
+    return _branch_tree_creator_with_hint(k, height, None, None, node_factory)
 
 
 @register_tree_creator('KARY')
@@ -102,12 +112,21 @@ def kary_tree_creator(k, height, node_factory=fixed_node_factory):
 
 
 @register_tree_creator('SIZE')
-def kary_tree_creator(leaves, k, height, node_factory=fixed_node_factory):
+def kary_tree_creator(nodes, k, height, node_factory=fixed_node_factory):
     """Create a k-ary tree with the given size, max k and height"""
-    assert leaves <= (k ** (height + 1) - 1) // (k - 1)
+    assert nodes <= (k ** (height + 1) - 1) // (k - 1)
     while True:
-        tree = branch_tree_creator(k, height, node_factory)
-        if tree.size() == leaves: return tree
+        tree = _branch_tree_creator_with_hint(k, height, nodes, None, node_factory)
+        if tree.size() == nodes: return tree
+
+
+@register_tree_creator('COUNT')
+def kary_tree_creator(leaves, k, height, node_factory=fixed_node_factory):
+    """Create a k-ary tree with the given leaves, max k and height"""
+    assert leaves <= k ** height
+    while True:
+        tree = _branch_tree_creator_with_hint(k, height, None, leaves, node_factory)
+        if len(tree.leaves()) == leaves: return tree
 
 
 @register_tree_creator('SCIUNIT')

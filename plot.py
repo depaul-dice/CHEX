@@ -58,9 +58,9 @@ def plot_real(verbose=False):
         plt.ylabel('Storage Used by Algorithm (in Bytes)')
         plt.legend()
         plt.title(trees[t])
+        plt.savefig(f'{t}.jpg', dpi=1200)
         if verbose and VERBOSE_SHOW_PLOT:
             plt.show()
-        plt.savefig(f'{t}.jpg', dpi=1200)
         plt.clf()
 
 
@@ -132,9 +132,9 @@ def plot_synthetic(verbose=False):
         plt.ylabel('Total Cost')
         plt.legend()
         plt.title(tname)
+        plt.savefig(f'{tname}.jpg', dpi=1200)
         if verbose and VERBOSE_SHOW_PLOT:
             plt.show()
-        plt.savefig(f'{tname}.jpg', dpi=1200)
         plt.clf()
 
 
@@ -174,9 +174,9 @@ def plot_cr(verbose=False):
     plt.ylabel('Total Checkpoints/Restores')
     plt.legend()
     plt.title('Checkpoints/Restores By Algorithm')
+    plt.savefig(f'c_r.jpg', dpi=1200)
     if verbose and VERBOSE_SHOW_PLOT:
         plt.show()
-    plt.savefig(f'c_r.jpg', dpi=1200)
     plt.clf()
 
 
@@ -216,9 +216,62 @@ def plot_storage(verbose=False):
     plt.ylabel('Total Storage Used (in KB)')
     plt.legend()
     plt.title('Storage Used By Algorithm')
+    plt.savefig(f'storage.jpg', dpi=1200)
     if verbose and VERBOSE_SHOW_PLOT:
         plt.show()
-    plt.savefig(f'storage.jpg', dpi=1200)
+    plt.clf()
+
+
+def plot_versions(verbose=False):
+    mems = [0, 256 * 1024 ** 2, 1024 ** 3]
+    max_leaves = list(range(1, 33))
+
+    data = ddict(lambda: ddict(list))
+
+    for leaves in max_leaves:
+        for e in range(EXP_COUNT):
+            ex_tree = exT.create_tree('COUNT', leaves, 4, 6, an_node_factory)
+            if verbose and VERBOSE_PRINT_INFO:
+                print_info(ex_tree, f'{leaves} Leaves')
+            for mem in mems:
+                ex_tree.cache_size = mem
+                recurse_algorithm(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
+                if verbose:
+                    print(f'Cache:{mem} {leaves} Leaves = {cost(ex_tree)}')
+                data[mem][e].append((leaves, cost(ex_tree)))
+                ex_tree.reset()
+
+    tmax = min(max(max(c for _, c in data[m][e]) for e in data[m]) for m in data)
+    x = np.linspace(0, tmax, 1000)
+    for mem, l in zip(mems, LINSHAPES):
+        ys = [[] for _ in x]
+        for e in data[mem]:
+            i, pl = 0, 0
+            for le, c in data[mem][e]:
+                while i < len(x) and x[i] < c:
+                    ys[i].append(pl)
+                    i += 1
+                pl = le
+            while i < len(x):
+                ys[i].append(pl)
+                i += 1
+        ys = np.array(ys)
+        y = np.mean(ys, axis=1)
+        dy = np.std(ys, axis=1)
+        # if PLOT_ERROR_BARS:
+        #     plt.errorbar(x, y, yerr=dy, fmt=l, label=f'{mem // 1024 ** 2} MB')
+        # else:
+        #     plt.plot(x, y, l, label=f'{mem // 1024 ** 2} MB')
+        plt.plot(x, y, label=f'{mem // 1024 ** 2} MB')
+        plt.fill_between(x, y - dy, y + dy, alpha=.2)
+
+    plt.xlabel('Available Cost')
+    plt.ylabel('No. of Versions')
+    plt.legend()
+    plt.title('No. of Versions that can be run with given cost')
+    plt.savefig('versions.jpg', dpi=1200)
+    if verbose and VERBOSE_SHOW_PLOT:
+        plt.show()
     plt.clf()
 
 
@@ -257,7 +310,7 @@ def plot_algotime(verbose=False):
     plt.ylabel('Algorithm Running Time')
     plt.legend()
     plt.title('Running Time')
+    plt.savefig('running_time.jpg', dpi=1200)
     if verbose and VERBOSE_SHOW_PLOT:
         plt.show()
-    plt.savefig('running_time.jpg', dpi=1200)
     plt.clf()

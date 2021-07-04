@@ -44,6 +44,7 @@ def main():
     plot_synthetic(verbose=True)
     plot_storage(verbose=True)
     plot_cr(verbose=True)
+    plot_versions(verbose=True)
     plot_algotime(verbose=True)
 
 
