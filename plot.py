@@ -11,20 +11,29 @@ from algorithms import *
 from solver_algorithms import *
 
 
-PLOT_ERROR_BARS = False
+# plt.rc('font', size=14, weight='bold')
+plt.rc('font', size=16)
+plt.rc('errorbar', capsize=10)
+
+PLOT_ERROR_BARS = True
+PLOT_FILL_BETWEEN = False
 VERBOSE_SHOW_PLOT = False
 ALGORITHM_VERBOSE = False
 VERBOSE_PRINT_INFO = True
 EXP_COUNT = 10
 
-ALGOS = {dfs_algorithm_v1: 'DFS Algorithm v1',
-         dfs_algorithm_v2: 'DFS Algorithm v2',
-         recurse_algorithm: 'BestCost Algorithm',
+ALGOS = {dfs_algorithm_v1: 'PRP-v1',
+         dfs_algorithm_v2: 'PRP-v2',
+         recurse_algorithm: 'PC',
          # optimal_dfs: 'Couenne Optimal DFS',
          # optimal: 'Couenne Optimal',
-         online_algorithm: 'Online Algorithm'}
+         online_algorithm: 'LFU'}
 
 LINSHAPES = ['*-', '.-', 'x-', '<-', '>-', 's-', 'D-']
+
+LABEL_COMPUTE_COST = lambda p: f'Multiversion Compute Cost (in $10^{p}$ sec)'
+LABEL_CACHE_SIZE_MAP = {2: 'MB', 3: 'GB'}
+LABEL_CACHE_SIZE = lambda p: f'Cache Size (in {LABEL_CACHE_SIZE_MAP[p]})'
 
 def plot_real(verbose=False):
     trees = {'epruning.bin': 'Epruning',
@@ -37,28 +46,29 @@ def plot_real(verbose=False):
             [i * 1024 ** 3 for i in range(1, 10)],
             [i * 25 * 1024 ** 2 for i in range(1, 20)],
             [i * 10 * 1024 ** 2 for i in range(1, 10)]]
+    label_ps = [(3, 3), (2, 2), (3, 3), (2, 3), (2, 3)]
 
     data = ddict(dict)
 
-    for t, tmems in zip(trees, mems):
+    for t, tmems, p in zip(trees, mems, label_ps):
         ex_tree = exT.create_tree('SCIUNIT', t)
         if verbose and VERBOSE_PRINT_INFO:
             print_info(ex_tree, trees[t])
         for algorithm, l in zip(ALGOS, LINSHAPES):
-            data[t][algorithm] = [(0, cost(ex_tree))]
+            data[t][algorithm] = [(0, cost(ex_tree) / 10**p[1])]
             for cache_sz in tmems:
                 ex_tree.cache_size = cache_sz
                 algorithm(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
                 if verbose:
                     print(f'{t}-{ALGOS[algorithm]} Cost (Cache:{cache_sz}) = {cost(ex_tree)}')
-                data[t][algorithm].append((cache_sz / 1024**2, cost(ex_tree)))
+                data[t][algorithm].append((cache_sz / 1024**p[0], cost(ex_tree) / 10**p[1]))
                 ex_tree.reset()
             plt.plot(*zip(*data[t][algorithm]), l, label=ALGOS[algorithm])
-        plt.xlabel('Cache Size (in MB)')
-        plt.ylabel('Storage Used by Algorithm (in Bytes)')
+        plt.xlabel(LABEL_CACHE_SIZE(p[0]))
+        plt.ylabel(LABEL_COMPUTE_COST(p[1]))
         plt.legend()
-        plt.title(trees[t])
-        plt.savefig(f'{t}.jpg', dpi=1200)
+        # plt.title(trees[t])
+        plt.savefig(f'{t}.jpg', dpi=1200, bbox_inches='tight')
         if verbose and VERBOSE_SHOW_PLOT:
             plt.show()
         plt.clf()
@@ -94,9 +104,9 @@ def plot_synthetic(verbose=False):
                  di_node_factory,
                  an_node_factory]
     tree_names = ['CI', 'DI', 'AN']
-    mems = [[i * 40 * 1024 ** 2 for i in range(1, 50)],
-            [i * 50 * 1024 ** 2 for i in range(1, 50)],
-            [i * 50 * 1024 ** 2 for i in range(1, 50)]]
+    mems = [[i * 250 * 1024**2 for i in range(1, 11)],
+            [i * 250 * 1024**2 for i in range(1, 11)],
+            [i * 250 * 1024**2 for i in range(1, 11)]]
 
     data = ddict(lambda: ddict(lambda: ddict(list)))
 
@@ -112,7 +122,7 @@ def plot_synthetic(verbose=False):
                     algorithm(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
                     if verbose:
                         print(f'{tname}-{ALGOS[algorithm]} Cost (Cache:{cache_sz}) = {cost(ex_tree)}')
-                    data[t][algorithm][cache_sz / 1024**2].append(cost(ex_tree))
+                    data[t][algorithm][cache_sz / 1024**3].append(cost(ex_tree))
                     ex_tree.reset()
 
         for algorithm, l in zip(data[t], LINSHAPES):
@@ -121,18 +131,19 @@ def plot_synthetic(verbose=False):
                 x.append(c)
                 y.append(np.mean(data[t][algorithm][c]))
                 dy.append(np.std(data[t][algorithm][c]))
-            y, dy = np.array(y), np.array(dy)
+            y, dy = np.array(y) / 10**3, np.array(dy) / 10**3
             if PLOT_ERROR_BARS:
                 plt.errorbar(x, y, yerr=dy, fmt=l, label=ALGOS[algorithm])
             else:
                 plt.plot(x, y, l, label=ALGOS[algorithm])
-            plt.fill_between(x, y - dy, y + dy, alpha=.2)
+            if PLOT_FILL_BETWEEN:
+                plt.fill_between(x, y - dy, y + dy, alpha=.2)
 
-        plt.xlabel('Cache Size (in MB)')
-        plt.ylabel('Total Cost')
+        plt.xlabel(LABEL_CACHE_SIZE(3))
+        plt.ylabel(LABEL_COMPUTE_COST(3))
         plt.legend()
-        plt.title(tname)
-        plt.savefig(f'{tname}.jpg', dpi=1200)
+        # plt.title(tname)
+        plt.savefig(f'{tname}.jpg', dpi=1200, bbox_inches='tight')
         if verbose and VERBOSE_SHOW_PLOT:
             plt.show()
         plt.clf()
@@ -169,12 +180,13 @@ def plot_cr(verbose=False):
             plt.errorbar(x, y, yerr=dy, fmt=l, label=f'{t} Nodes')
         else:
             plt.plot(x, y, l, label=f'{t} Nodes')
-        plt.fill_between(x, y - dy, y + dy, alpha=.2)
-    plt.xlabel('Cache Size (in MB)')
+        if PLOT_FILL_BETWEEN:
+            plt.fill_between(x, y - dy, y + dy, alpha=.2)
+    plt.xlabel(LABEL_CACHE_SIZE(2))
     plt.ylabel('Total Checkpoints/Restores')
     plt.legend()
-    plt.title('Checkpoints/Restores By Algorithm')
-    plt.savefig(f'c_r.jpg', dpi=1200)
+    # plt.title('Checkpoints/Restores By Algorithm')
+    plt.savefig(f'c_r.jpg', dpi=1200, bbox_inches='tight')
     if verbose and VERBOSE_SHOW_PLOT:
         plt.show()
     plt.clf()
@@ -211,19 +223,20 @@ def plot_storage(verbose=False):
             plt.errorbar(x, y, yerr=dy, fmt=l, label=f'{t} Nodes')
         else:
             plt.plot(x, y, l, label=f'{t} Nodes')
-        plt.fill_between(x, y - dy, y + dy, alpha=.2)
-    plt.xlabel('Cache Size (in MB)')
+        if PLOT_FILL_BETWEEN:
+            plt.fill_between(x, y - dy, y + dy, alpha=.2)
+    plt.xlabel(LABEL_CACHE_SIZE(2))
     plt.ylabel('Total Storage Used (in KB)')
     plt.legend()
-    plt.title('Storage Used By Algorithm')
-    plt.savefig(f'storage.jpg', dpi=1200)
+    # plt.title('Storage Used By Algorithm')
+    plt.savefig(f'storage.jpg', dpi=1200, bbox_inches='tight')
     if verbose and VERBOSE_SHOW_PLOT:
         plt.show()
     plt.clf()
 
 
 def plot_versions(verbose=False):
-    mems = [0, 256 * 1024 ** 2, 1024 ** 3]
+    mems = [0, 256 * 1024 ** 2, 512 * 1024 ** 2, 1024 ** 3]
     max_leaves = list(range(1, 33))
 
     data = ddict(lambda: ddict(list))
@@ -259,17 +272,19 @@ def plot_versions(verbose=False):
         y = np.mean(ys, axis=1)
         dy = np.std(ys, axis=1)
         # if PLOT_ERROR_BARS:
-        #     plt.errorbar(x, y, yerr=dy, fmt=l, label=f'{mem // 1024 ** 2} MB')
+        #     plt.errorbar(x / 1000, y, yerr=dy, fmt=l, label=f'{mem // 1024 ** 2} MB')
         # else:
-        #     plt.plot(x, y, l, label=f'{mem // 1024 ** 2} MB')
-        plt.plot(x, y, label=f'{mem // 1024 ** 2} MB')
-        plt.fill_between(x, y - dy, y + dy, alpha=.2)
+        #     plt.plot(x / 1000, y, l, label=f'{mem // 1024 ** 2} MB')
+        # if PLOT_FILL_BETWEEN:
+        #     plt.fill_between(x / 1000, y - dy, y + dy, alpha=.2)
+        plt.plot(x / 1000, y, label=f'{mem // 1024 ** 2} MB')
+        plt.fill_between(x / 1000, y - dy, y + dy, alpha=.2)
 
-    plt.xlabel('Available Cost')
+    plt.xlabel('Available Cost (in $10^3$ sec)')
     plt.ylabel('No. of Versions')
     plt.legend()
-    plt.title('No. of Versions that can be run with given cost')
-    plt.savefig('versions.jpg', dpi=1200)
+    # plt.title('No. of Versions that can be run with given cost')
+    plt.savefig('versions.jpg', dpi=1200, bbox_inches='tight')
     if verbose and VERBOSE_SHOW_PLOT:
         plt.show()
     plt.clf()
@@ -299,18 +314,19 @@ def plot_algotime(verbose=False):
             x.append(t)
             y.append(np.mean(data[algorithm][t]))
             dy.append(np.std(data[algorithm][t]))
-        y, dy = np.array(y), np.array(dy)
+        y, dy = np.array(y) * 1000, np.array(dy) * 1000
         if PLOT_ERROR_BARS:
             plt.errorbar(x, y, yerr=dy, fmt=l, label=ALGOS[algorithm])
         else:
             plt.plot(x, y, l, label=ALGOS[algorithm])
-        plt.fill_between(x, y - dy, y + dy, alpha=.2)
+        if PLOT_FILL_BETWEEN:
+            plt.fill_between(x, y - dy, y + dy, alpha=.2)
 
     plt.xlabel('Tree Size')
-    plt.ylabel('Algorithm Running Time')
+    plt.ylabel('Algorithm Running Time (in mS)')
     plt.legend()
-    plt.title('Running Time')
-    plt.savefig('running_time.jpg', dpi=1200)
+    # plt.title('Running Time')
+    plt.savefig('running_time.jpg', dpi=1200, bbox_inches='tight')
     if verbose and VERBOSE_SHOW_PLOT:
         plt.show()
     plt.clf()
