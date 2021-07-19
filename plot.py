@@ -40,13 +40,15 @@ def plot_real(verbose=False):
              'financial_news.bin': 'Financial News',
              'kaggle.bin': 'Kaggle',
              'natgas.bin': 'Natural Gas',
-             'nasa.bin': 'NASA'}
+             'nasa.bin': 'NASA',
+             'timeseries.bin': 'TimeSeries'}
     mems = [[i * 200 * 1024 ** 2 for i in range(1, 50)],
             [i * 20 * 1024 ** 2 for i in range(1, 50)],
             [i * 1024 ** 3 for i in range(1, 10)],
             [i * 25 * 1024 ** 2 for i in range(1, 20)],
-            [i * 10 * 1024 ** 2 for i in range(1, 10)]]
-    label_ps = [(3, 3), (2, 2), (3, 3), (2, 3), (2, 3)]
+            [i * 10 * 1024 ** 2 for i in range(1, 10)],
+            [i * 1000 * 1024 ** 2 for i in range(1, 20)]]
+    label_ps = [(3, 3), (2, 2), (3, 3), (2, 3), (2, 3), (3, 3)]
 
     data = ddict(dict)
 
