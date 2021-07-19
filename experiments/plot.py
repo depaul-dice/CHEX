@@ -1,3 +1,6 @@
+import sys
+sys.path.append('src/')
+
 import random
 import time
 from collections import defaultdict as ddict
@@ -53,7 +56,7 @@ def plot_real(verbose=False):
     data = ddict(dict)
 
     for t, tmems, p in zip(trees, mems, label_ps):
-        ex_tree = exT.create_tree('SCIUNIT', t)
+        ex_tree = exT.create_tree('SCIUNIT', f'data/{t}')
         if verbose and VERBOSE_PRINT_INFO:
             print_info(ex_tree, trees[t])
         for algorithm, l in zip(ALGOS, LINSHAPES):
