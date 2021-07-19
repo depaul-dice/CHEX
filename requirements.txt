@@ -1,3 +1,4 @@
 treelib
 Pyomo
+numpy
 matplotlib

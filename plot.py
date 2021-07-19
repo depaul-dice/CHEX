@@ -31,7 +31,7 @@ ALGOS = {dfs_algorithm_v1: 'PRP-v1',
 
 LINSHAPES = ['*-', '.-', 'x-', '<-', '>-', 's-', 'D-']
 
-LABEL_COMPUTE_COST = lambda p: f'Multiversion Compute Cost (in $10^{p}$ sec)'
+LABEL_COMPUTE_COST = lambda p: f'Total Replay Cost (in $10^{p}$ sec)'
 LABEL_CACHE_SIZE_MAP = {2: 'MB', 3: 'GB'}
 LABEL_CACHE_SIZE = lambda p: f'Cache Size (in {LABEL_CACHE_SIZE_MAP[p]})'
 
@@ -45,9 +45,9 @@ def plot_real(verbose=False):
     mems = [[i * 200 * 1024 ** 2 for i in range(1, 50)],
             [i * 20 * 1024 ** 2 for i in range(1, 50)],
             [i * 1024 ** 3 for i in range(1, 10)],
-            [i * 25 * 1024 ** 2 for i in range(1, 20)],
+            [i * 50 * 1024 ** 2 for i in range(1, 20)],
             [i * 10 * 1024 ** 2 for i in range(1, 10)],
-            [i * 1000 * 1024 ** 2 for i in range(1, 20)]]
+            [i * 4 * 1024 ** 3 for i in range(1, 20)]]
     label_ps = [(3, 3), (2, 2), (3, 3), (2, 3), (2, 3), (3, 3)]
 
     data = ddict(dict)
