@@ -4,6 +4,7 @@ import subprocess
 import socket
 import pickle
 import time
+import signal
 import shutil
 import base64
 
@@ -48,7 +49,12 @@ def run_code(server, pid, code):
     while not psutil.pid_exists(pid):
         time.sleep(1)
     time.sleep(1)
-    os.system(f'sudo kill -USR1 {pid}')
+    while True:
+        try:
+            os.kill(pid, signal.SIGUSR1)
+            break
+        except PermissionError:
+            pass
     conn, _ = server.accept()
     send_msg(conn, pickle.dumps(code))
     result = pickle.loads(recv_msg(conn))
@@ -96,10 +102,7 @@ def run_tree(tree_binary, cache_size):
         for child, to_cache in node.data.recursive_cache[cache]:
             if child is node:
                 restore, *run = create
-                os.system(f'sudo kill -KILL {runner_pid}')
-                runner.wait()
-                while psutil.pid_exists(runner_pid):
-                    time.sleep(1)
+                criu_dump(runner_pid, b'criu', runner)
                 runner = criu_restore(runner_pid, restore.identifier)
                 for r in run:
                     print(run_code(server, runner_pid, code_map[r.identifier]))
