@@ -2,6 +2,7 @@ import os
 import socket
 import pickle
 import signal
+import time
 
 import sciunit_tree
 from runner_util import *
@@ -25,10 +26,12 @@ def setup_signal():
     client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     client.connect(SOCKET_FILE)
     send_msg(client, pickle.dumps(os.getpid()))
+    parent_pid = pickle.loads(recv_msg(client))
     client.close()
 
     while True:
-        signal.pause()
+        time.sleep(1)
+        os.kill(parent_pid, signal.SIGUSR1)
 
 
 if __name__ == '__main__':

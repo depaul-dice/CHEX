@@ -41,7 +41,8 @@ def criu_restore(pid, hash_directory):
     runner = subprocess.Popen(['sudo', 'criu', 'restore', '--shell-job', '-D', f'{directory}/'], start_new_session=True)
     while not psutil.pid_exists(pid):
         time.sleep(1)
-    time.sleep(2)
+    signal.pause()
+    signal.pause()
     return runner
 
 
@@ -83,10 +84,13 @@ def run_tree(tree_binary, cache_size):
     server.bind(SOCKET_FILE)
     server.listen(1)
 
+    signal.signal(signal.SIGUSR1, lambda *_: None)
+
     runner = subprocess.Popen([sys.executable, 'runner.py'], start_new_session=True)
 
     cconn, _ = server.accept()
     runner_pid = pickle.loads(recv_msg(cconn))
+    send_msg(cconn, pickle.dumps(os.getpid()))
     cconn.close()
     print(runner_pid)
 
