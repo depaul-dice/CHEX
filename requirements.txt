@@ -2,3 +2,5 @@ treelib
 Pyomo
 numpy
 matplotlib
+psutil
+nbformat

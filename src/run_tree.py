@@ -126,4 +126,4 @@ def run_tree(tree_binary, cache_size):
 
 
 if __name__ == '__main__':
-    run_tree('../data/kaggle.bin', 4 * 1024**3)
+    run_tree('../data/kaggle_small.bin', 4 * 1024**3)
