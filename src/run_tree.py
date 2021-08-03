@@ -17,13 +17,13 @@ from runner_util import *
 
 
 def delete_checkpoint(hash_directory):
-    directory = base64.b64encode(hash_directory).decode()
+    directory = base64.b64encode(hash_directory).decode().replace('/', '_')
     shutil.rmtree(directory, ignore_errors=True)
 
 
 def criu_dump(pid, hash_directory, waiter=None):
     delete_checkpoint(hash_directory)
-    directory = base64.b64encode(hash_directory).decode()
+    directory = base64.b64encode(hash_directory).decode().replace('/', '_')
     os.mkdir(directory)
     os.system(f'sudo criu dump -t {pid} --shell-job -D {directory}/')
     if waiter is not None:
@@ -36,7 +36,7 @@ def criu_dump(pid, hash_directory, waiter=None):
 def criu_restore(pid, hash_directory):
     while psutil.pid_exists(pid):
         time.sleep(1)
-    directory = base64.b64encode(hash_directory).decode()
+    directory = base64.b64encode(hash_directory).decode().replace('/', '_')
     # os.system(f'sudo criu restore --shell-job -D {directory}/ &')
     runner = subprocess.Popen(['sudo', 'criu', 'restore', '--shell-job', '-D', f'{directory}/'], start_new_session=True)
     while not psutil.pid_exists(pid):

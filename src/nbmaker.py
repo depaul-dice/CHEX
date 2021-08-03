@@ -25,4 +25,4 @@ shutil.rmtree(sys.argv[2], ignore_errors=True)
 os.mkdir(sys.argv[2])
 
 for i, notebook in enumerate(recursive_fill(pkl.load(open(sys.argv[1], 'rb'))[0])):
-    nbformat.write(notebook, os.path.join(sys.argv[2], f'{sys.argv[1]}_{i}.ipynb'))
+    nbformat.write(notebook, os.path.join(sys.argv[2], f'{os.path.split(sys.argv[1])[1]}_{i}.ipynb'))

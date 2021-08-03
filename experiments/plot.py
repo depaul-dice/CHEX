@@ -167,7 +167,7 @@ def plot_cr(verbose=False):
         for _ in range(EXP_COUNT):
             ex_tree = exT.create_tree('SIZE', t, 4, 6, an_node_factory)
             if verbose and VERBOSE_PRINT_INFO:
-                print_info(ex_tree, f'{t} Nodes')
+                print_info(ex_tree, f'TS: {t}')
             for cache_sz in t_mems:
                 ex_tree.cache_size = cache_sz
                 recurse_algorithm(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
@@ -182,9 +182,9 @@ def plot_cr(verbose=False):
             dy.append(np.std(data[t][c]))
         y, dy = np.array(y), np.array(dy)
         if PLOT_ERROR_BARS:
-            plt.errorbar(x, y, yerr=dy, fmt=l, label=f'{t} Nodes')
+            plt.errorbar(x, y, yerr=dy, fmt=l, label=f'TS: {t}')
         else:
-            plt.plot(x, y, l, label=f'{t} Nodes')
+            plt.plot(x, y, l, label=f'TS: {t}')
         if PLOT_FILL_BETWEEN:
             plt.fill_between(x, y - dy, y + dy, alpha=.2)
     plt.xlabel(LABEL_CACHE_SIZE(2))
@@ -210,7 +210,7 @@ def plot_storage(verbose=False):
         for _ in range(EXP_COUNT):
             ex_tree = exT.create_tree('SIZE', t, 4, 6, an_node_factory)
             if verbose and VERBOSE_PRINT_INFO:
-                print_info(ex_tree, f'{t} Nodes')
+                print_info(ex_tree, f'TS: {t}')
             for cache_sz in t_mems:
                 ex_tree.cache_size = cache_sz
                 recurse_algorithm(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
@@ -225,9 +225,9 @@ def plot_storage(verbose=False):
             dy.append(np.std(data[t][c]))
         y, dy = np.array(y), np.array(dy)
         if PLOT_ERROR_BARS:
-            plt.errorbar(x, y, yerr=dy, fmt=l, label=f'{t} Nodes')
+            plt.errorbar(x, y, yerr=dy, fmt=l, label=f'TS: {t}')
         else:
-            plt.plot(x, y, l, label=f'{t} Nodes')
+            plt.plot(x, y, l, label=f'TS: {t}')
         if PLOT_FILL_BETWEEN:
             plt.fill_between(x, y - dy, y + dy, alpha=.2)
     plt.xlabel(LABEL_CACHE_SIZE(2))
@@ -306,7 +306,7 @@ def plot_algotime(verbose=False):
             for t in tree_args:
                 ex_tree = exT.create_tree('SIZE', t, 4, 6, an_node_factory)
                 if verbose and VERBOSE_PRINT_INFO:
-                    print_info(ex_tree, f'{t} Nodes')
+                    print_info(ex_tree, f'TS: {t}')
                 ex_tree.cache_size = mem
                 begin = time.time()
                 algorithm(ex_tree, verbose=False)
@@ -327,7 +327,7 @@ def plot_algotime(verbose=False):
         if PLOT_FILL_BETWEEN:
             plt.fill_between(x, y - dy, y + dy, alpha=.2)
 
-    plt.xlabel('Tree Size')
+    plt.xlabel('Tree Size (TS)')
     plt.ylabel('Algorithm Running Time (in mS)')
     plt.legend()
     # plt.title('Running Time')
@@ -335,3 +335,39 @@ def plot_algotime(verbose=False):
     if verbose and VERBOSE_SHOW_PLOT:
         plt.show()
     plt.clf()
+
+
+def plot_couenne(verbose=False):
+    sizes = list(range(10))
+    data = {}
+    for sz in sizes:
+        data[sz] = []
+        for _ in range(EXP_COUNT):
+            ex_tree = exT.create_tree('SIZE', sz, 3, 5, an_node_factory)
+            if verbose and VERBOSE_PRINT_INFO:
+                print_info(ex_tree, f'TS: {sz}')
+            ex_tree.cache_size = 1024**3
+            time_start = time.time()
+            optimal(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
+            data[sz].append(time.time() - time_start)
+
+    x, y, dy = [], [], []
+    for sz in data:
+        x.append(sz)
+        y.append(np.mean(data[sz]))
+        dy.append(np.std(data[sz]))
+    y, dy = np.array(y) * 1000, np.array(dy) * 1000
+    if PLOT_ERROR_BARS:
+        plt.errorbar(x, y, yerr=dy)
+    else:
+        plt.plot(x, y)
+    if PLOT_FILL_BETWEEN:
+        plt.fill_between(x, y - dy, y + dy, alpha=.2)
+
+    plt.xlabel('Tree Size')
+    plt.ylabel('Algorithm Running Time (in sec)')
+    plt.savefig(f'couenne.jpg', dpi=1200, bbox_inches='tight')
+    if verbose and VERBOSE_SHOW_PLOT:
+        plt.show()
+    plt.clf()
+
