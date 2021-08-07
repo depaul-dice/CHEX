@@ -7,7 +7,7 @@ When multiple versions of an application are containerized, it is often necessar
 
 The following shows how **CHEX** works. 
 
-![**CHEX Overview**] (./img/CHEX-2.png)
+![**CHEX Overview**] (/img/CHEX-2.png)
 
 
 Alice uses **CHEX** in audit mode to execute each version. **CHEX** audits details of her executions. It then represents the details of her executions in the form of a data structure called the *Execution Tree*. The execution tree contains information about the computation cost and average checkpoint size of each cell in each version of Alice's multiversion program. It also contains information about which cells can be identified with each other across versions. This information is encapsulated as a tree structure.
