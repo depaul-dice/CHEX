@@ -1,3 +1,5 @@
+# Getting started
+
 In collaborative scenarios, sharing and reproducig results is often necessary. 
 When multiple versions of an application are containerized, it is often necessary to perform multiversion replay 
 
@@ -36,7 +38,7 @@ This repository  has three directories: data, src, and dockerfiles.
 ---
 # Evaluating this artifact
 
-## How to repeat our results: 
+## How to repeat our results? 
 
 ### A. Sample Alice/Bob scenarios 
 
