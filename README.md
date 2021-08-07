@@ -14,6 +14,7 @@ Bob uses **CHEX** in replay mode. **CHEX** first determines an efficient *replay
 
 
 This repository  has three directories: data, src, and dockerfiles.
+
 * Sample execution trees of all notebooks used in the paper are found under `data`. 
 * CHEX src code for Alice and Bob reside under `src.
 * Sample Alice/Bob scenarios can be constucted using provided dockerfiles under `dockerfile`.
@@ -37,7 +38,7 @@ This repository  has three directories: data, src, and dockerfiles.
 
 ## How to repeat our results: 
 
-- A. Sample Alice/Bob scenarios 
+### A. Sample Alice/Bob scenarios 
 
 Two sample notebook examples are provided under the directory dockerfiles. 
 For these notebooks, we have created corresponding dockerfiles. 
@@ -53,7 +54,7 @@ To install and run these dockerfiles
 4. To run as Alice: 
 5. To run as Bob:
 
-- B. Regenerate the figures in the paper:
+### B. Regenerate the figures in the paper:
 
 1. Follow install instructions under INSTALL
 2. Run ```python plot.py```
@@ -61,7 +62,7 @@ To install and run these dockerfiles
 
 ## How to reproduce CHEX using your own notebooks?
 
-- A. Generate Execution trees:
+### A. Generate Execution trees:
  
  1. Run ```python run_notebooks.py```
 
@@ -69,16 +70,16 @@ This command should be run from the same folder in which the notebook versions a
 Note, the command currently does not produce a container-based execution tree. Code for that is still under works over here: 
 https://bitbucket.org/depauldbgroup/provenance-to-use/src/notebook
 
-- B. Generate the replay sequence
+### B. Generate the replay sequence
 
-```python replay-order.py --algo pc|prp-v1|prp-v2 --size <B> --tree <sample.bin>```
+ 1. Run ```python replay-order.py --algo pc|prp-v1|prp-v2 --size <B> --tree <sample.bin>```
 
 sample.bin must be under data directory. 
 output of this command is replay-order.bin
 
-- C. For replaying 
+### C. For replaying 
 
-```python replay.py --RO replay-order.bin```
+ 1. Run ```python replay.py --RO replay-order.bin```
 
 ---
 This material is based upon work supported by the National Science Foundation under Grants CNS-1846418, ICER-1639759, ICER-1661918, and a DoE BSSw Fellowship. Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
