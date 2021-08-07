@@ -1,21 +1,21 @@
-In caollaborative scenarios, sharing and reproducig results is often necessary. 
+In collaborative scenarios, sharing and reproducig results is often necessary. 
 When multiple versions of an application are containerized, it is often necessary to perform multiversion replay 
 
 **CHEX** provides the ability to perform efficient multiversion replay. 
 
 The following shows how **CHEX** works. 
 
-![**CHEX Overview**] (./figs/CHEX)
+![**CHEX Overview**] (./img/CHEX)
 
 
-Alice uses **CHEX** in audit mode to execute each version. **CHEX** audits details of her executions. It then represents the details of her executions in the form of a data structure called the \textit{Execution Tree}. The execution tree contains information about the computation cost and average checkpoint size of each cell in each version of Alice's multiversion program. It also contains information about which cells can be identified with each other across versions. This information is encapsulated as a tree structure.
+Alice uses **CHEX** in audit mode to execute each version. **CHEX** audits details of her executions. It then represents the details of her executions in the form of a data structure called the *Execution Tree*. The execution tree contains information about the computation cost and average checkpoint size of each cell in each version of Alice's multiversion program. It also contains information about which cells can be identified with each other across versions. This information is encapsulated as a tree structure.
 
-Bob uses **CHEX** in replay mode. **CHEX** first determines an efficient {\em replay sequence} or replay order for him, i.e., a plan for execution that includes checkpoint caching decisions. To do so **CHEX** asks Bob to provide a cache size bound, $B$, and then executes a heuristic algorithm on the execution tree received from Alice to determine the most cost efficient replay sequence for that cache size. We describe some efficient heuristics for this purpose. Finally, once the replay sequence is computed, **CHEX** uses this replay sequence to \textit{compute, checkpoint, restore-switch} REPL program cells or \textit{evict} stored checkpoints from cache.
+Bob uses **CHEX** in replay mode. **CHEX** first determines an efficient *replay sequence* or replay order for him, i.e., a plan for execution that includes checkpoint caching decisions. To do so **CHEX** asks Bob to provide a cache size bound, B, and then executes a heuristic algorithm on the execution tree received from Alice to determine the most cost efficient replay sequence for that cache size. We describe some efficient heuristics for this purpose. Finally, once the replay sequence is computed, **CHEX** uses this replay sequence to *compute, checkpoint, restore-switch* REPL program cells or *evict* stored checkpoints from cache.
 
 
-This repository  has three directories:data, src, and dockerfiles. execution trees provided by Alice, and CHEX code that replays the tree for Bob:
+This repository  has three directories: data, src, and dockerfiles.
 * Sample execution trees of all notebooks used in the paper are found under `data`. 
-* CHEX src code for Alice and Bob side in under `src.
+* CHEX src code for Alice and Bob reside under `src.
 * Sample Alice/Bob scenarios can be constucted using provided dockerfiles under `dockerfile`.
     
 
@@ -41,10 +41,12 @@ This repository  has three directories:data, src, and dockerfiles. execution tre
 
 Two sample notebook examples are provided under the directory dockerfiles. 
 For these notebooks, we have created corresponding dockerfiles. 
-The dockerfile for Alice downloads the specific Github repository, creates notebook versions, and generates execution trees using the code from this reposioty. 
-The dockerfile for Bob recreates the same notebook environment and allows the user to replay the notebooks using alogorithms provided from this repo. 
+The dockerfile for Alice downloads the specific Github repository, creates notebook versions, and generates execution trees using the code from this repository.
+
+The dockerfile for Bob recreates the same notebook environment and allows the user to replay the notebooks using algorithms provided from this repo. 
 
 To install and run these dockerfiles
+
 1. Install Docker from http://docker.com
 2. Clone this repo:
 3. Build dockerfile as:
