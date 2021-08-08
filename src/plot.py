@@ -46,7 +46,7 @@ ALGOS = {prp_v1: 'PRP-v1',
          pc: 'PC',
          # optimal_dfs: 'Couenne Optimal DFS',
          # optimal: 'Couenne Optimal',
-         online_algorithm: 'LFU'}
+         lfu: 'LFU'}
 
 LINSHAPES = ['*-', '.-', 'x-', '<-', '>-', 's-', 'D-']
 
@@ -387,3 +387,12 @@ def plot_couenne(verbose=False):
         plt.show()
     plt.clf()
 
+
+if __name__ == '__main__':
+    plot_real(verbose=True)
+    plot_synthetic(verbose=True)
+    plot_storage(verbose=True)
+    plot_cr(verbose=True)
+    plot_versions(verbose=True)
+    plot_algotime(verbose=True)
+    plot_couenne(verbose=True)

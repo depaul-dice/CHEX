@@ -15,7 +15,7 @@
 #
 # Author: Naga Nithin Manne <nithinmanne@gmail.com>
 
-# File purpose: Common file for IPC communication between runner.py and run_tree.py.
+# File purpose: Common file for IPC communication between runner.py and replay.py.
 
 import struct
 

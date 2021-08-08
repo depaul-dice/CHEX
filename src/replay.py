@@ -27,12 +27,10 @@ import time
 import signal
 import shutil
 import base64
+import pickle as pkl
 
 import psutil
 
-import sciunit_tree
-import ExecutionTree as exT
-from algorithms import pc
 from runner_util import *
 
 
@@ -89,10 +87,11 @@ def make_code_map(node, code_map):
         make_code_map(node.children[child], code_map)
 
 
-def run_tree(tree_binary, cache_size):
+def replay(replay_order_binary):
+    with open(replay_order_binary, 'rb') as robf:
+        sciunit_execution_tree, tree = pkl.load(robf)
     start = time.time()
-    sciunit_execution_tree, _ = sciunit_tree.tree_load(tree_binary)
-    tree = exT.create_tree('SCIUNIT', tree_binary)
+
     code_map = {}
     make_code_map(sciunit_execution_tree, code_map)
 
@@ -118,7 +117,7 @@ def run_tree(tree_binary, cache_size):
     runner = criu_restore(runner_pid, tree.root)
     print('First Restore Done')
 
-    def rec_run(node, cache=cache_size, create=None):
+    def rec_run(node, cache=tree.cache_size, create=None):
         nonlocal runner
         if create is None:
             create = [node]
@@ -138,12 +137,12 @@ def run_tree(tree_binary, cache_size):
                 else:
                     rec_run(child, cache, create + [child])
 
-    tree.cache_size = cache_size
-    pc(tree)
     rec_run(tree.get_node(tree.root))
     os.system(f'sudo kill -KILL {runner_pid}')
     print(f'Total Time = {time.time() - start}')
 
 
 if __name__ == '__main__':
-    run_tree('../data/kaggle_small.bin', 4 * 1024**3)
+    if len(sys.argv) < 2:
+        print('Usage: replay.py replay-order.bin')
+    replay(sys.argv[1])

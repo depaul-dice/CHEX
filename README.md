@@ -66,7 +66,7 @@ To install and run these dockerfiles
 
 ### A. Generate Execution trees:
  
- 1. Run ```python run_notebooks.py```
+ 1. Run ```python run_notebooks.py <Notebooks Path> <Output Tree>```
 
 This command should be run from the same folder in which the notebook versions are present and were executed. 
 Note, the command currently does not produce a container-based execution tree. Code for that is still under works over here: 
@@ -74,14 +74,14 @@ https://bitbucket.org/depauldbgroup/provenance-to-use/src/notebook
 
 ### B. Generate the replay sequence
 
- 1. Run ```python replay-order.py --algo pc|prp-v1|prp-v2 --size <B> --tree <sample.bin>```
+ 1. Run ```python replay-order.py pc|prpv1|prpv2|lfu <cache_size> <input tree.bin> <output replay-order.bin>```
 
 sample.bin must be under data directory. 
 output of this command is replay-order.bin
 
 ### C. For replaying 
 
- 1. Run ```python replay.py --RO replay-order.bin```
+ 1. Run ```python replay.py replay-order.bin```
 
 ---
 This material is based upon work supported by the National Science Foundation under Grants CNS-1846418, ICER-1639759, ICER-1661918, and a DoE BSSw Fellowship. Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.

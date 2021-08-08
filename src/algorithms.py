@@ -143,7 +143,7 @@ def pc(ex_tree, verbose=False):
     return total_cost_ret
 
 
-def online_algorithm(ex_tree, verbose=False):
+def lfu(ex_tree, verbose=False):
     ex_tree.get_node(ex_tree.root).data.recursive_cache = True
     ex_tree.total_cost = 0
     freq = ddict(int)
