@@ -28,10 +28,12 @@ import signal
 import shutil
 import base64
 import pickle as pkl
+import inspect
 
 import psutil
 
 from runner_util import *
+import runner as runner_import
 
 
 def delete_checkpoint(hash_directory):
@@ -105,7 +107,7 @@ def replay(replay_order_binary):
 
     signal.signal(signal.SIGUSR1, lambda *_: None)
 
-    runner = subprocess.Popen([sys.executable, 'runner.py'], start_new_session=True)
+    runner = subprocess.Popen([sys.executable, inspect.getsourcefile(runner_import)], start_new_session=True)
 
     cconn, _ = server.accept()
     runner_pid = pickle.loads(recv_msg(cconn))
