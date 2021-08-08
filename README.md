@@ -1,6 +1,6 @@
 # Getting started
 
-In collaborative scenarios, sharing and reproducig results is often necessary. 
+In collaborative scenarios, sharing and reproducing results is often necessary. 
 When multiple versions of an application are containerized, it is often necessary to perform multiversion replay 
 
 **CHEX** provides the ability to perform efficient multiversion replay. 
@@ -19,7 +19,7 @@ This repository  has three directories: data, src, and dockerfiles.
 
 * Sample execution trees of all notebooks used in the paper are found under `data`. 
 * CHEX src code for Alice and Bob reside under `src`.
-* Sample Alice/Bob scenarios can be constructed using provided dockerfiles under `dockerfile`.
+* Sample Alice/Bob scenarios can be constructed using provided dockerfiles under `docker`.
     
 
 # INSTALL requirements
@@ -42,7 +42,7 @@ This repository  has three directories: data, src, and dockerfiles.
 
 ### A. Sample Alice/Bob scenarios 
 
-Two sample notebook examples are provided under the directory dockerfiles. 
+Two sample notebook examples are provided under the directory docker. 
 For these notebooks, we have created corresponding dockerfiles. 
 The dockerfile for Alice downloads the specific GitHub repository, creates notebook versions, and generates execution trees using the code from this repository.
 
@@ -50,11 +50,16 @@ The dockerfile for Bob recreates the same notebook environment and allows the us
 
 To install and run these dockerfiles
 
-1. Install Docker from http://docker.com
-2. Clone this repo:
-3. Build dockerfile as:
-4. To run as Alice: 
+1. Install Docker from https://docs.docker.com/get-docker/
+2. Clone this repo.
+3. Build Dockerfile as:
+   ```docker build -t <tagname> .```
+4. To run as Alice:
+   ```docker run -v <Output Folder>:/output --privileged --cap-add all -it <tagname>```
 5. To run as Bob:
+  ```docker run --privileged --cap-add all -it <tagname>```
+
+`/output` in container has the output tree
 
 ### B. Regenerate the figures in the paper:
 
