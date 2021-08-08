@@ -17,9 +17,6 @@
 
 # File purpose: Simple examples to test algorithms on given trees
 
-import sys
-sys.path.append('src/')
-
 from collections import defaultdict
 
 import matplotlib.pyplot as plt

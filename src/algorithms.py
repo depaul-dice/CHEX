@@ -34,7 +34,7 @@ def _check_constraints(ex_tree, node, paths):
     return True
 
 
-def dfs_algorithm(ex_tree, cost_compare, verbose=False):
+def prp(ex_tree, cost_compare, verbose=False):
     """General purpose algorithm for DFS using a custom cost comparison function"""
     paths = ex_tree.paths_to_leaves()
     nodes = set(ex_tree.filter_nodes(lambda tree_node: not tree_node.is_leaf()))
@@ -55,21 +55,21 @@ def dfs_algorithm(ex_tree, cost_compare, verbose=False):
         ex_tree.show(data_property='x_in_cache')
 
 
-def dfs_algorithm_v1(ex_tree, verbose=False):
+def prp_v1(ex_tree, verbose=False):
     """Run DFS algorithm by comparing just time saved in each iteration"""
-    return dfs_algorithm(ex_tree, lambda new_cost, new_node, min_cost, min_node: new_cost < min_cost, verbose)
+    return prp(ex_tree, lambda new_cost, new_node, min_cost, min_node: new_cost < min_cost, verbose)
 
 
-def dfs_algorithm_v2(ex_tree, verbose=False):
+def prp_v2(ex_tree, verbose=False):
     """Run DFS algorithm by comparing time saved per cache usage in each iteration"""
     def cost_compare(new_cost, new_node, min_cost, min_node):
         if min_node is None:
             return True
         return (new_cost / new_node.data.c_size) < (min_cost / min_node.data.c_size)
-    return dfs_algorithm(ex_tree, cost_compare, verbose)
+    return prp(ex_tree, cost_compare, verbose)
 
 
-def recurse_algorithm(ex_tree, verbose=False):
+def pc(ex_tree, verbose=False):
 
     def recurse(node, cache, parent_cost=0):
         if cache in node.data.recursive_cache:

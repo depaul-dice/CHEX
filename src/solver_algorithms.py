@@ -23,7 +23,7 @@ import shutil
 from pyomo.environ import *
 
 from util import dfs_cost
-from algorithms import dfs_algorithm_v1
+from algorithms import prp_v1
 
 
 def _couenne_solve(model, verbose=False):
@@ -91,7 +91,7 @@ def optimal_dfs(ex_tree, verbose=False):
 
 def optimal(ex_tree, verbose=False):
     """Create a Pyomo model for the optimal problem and solve it"""
-    dfs_algorithm_v1(ex_tree, verbose)
+    prp_v1(ex_tree, verbose)
     max_time = dfs_cost(ex_tree, force_cost=1)
     ex_tree.reset()
     if verbose:

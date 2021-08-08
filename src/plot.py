@@ -17,9 +17,6 @@
 
 # File purpose: Generate all plots present in the paper
 
-import sys
-sys.path.append('src/')
-
 import random
 import time
 from collections import defaultdict as ddict
@@ -44,9 +41,9 @@ ALGORITHM_VERBOSE = False
 VERBOSE_PRINT_INFO = True
 EXP_COUNT = 10
 
-ALGOS = {dfs_algorithm_v1: 'PRP-v1',
-         dfs_algorithm_v2: 'PRP-v2',
-         recurse_algorithm: 'PC',
+ALGOS = {prp_v1: 'PRP-v1',
+         prp_v2: 'PRP-v2',
+         pc: 'PC',
          # optimal_dfs: 'Couenne Optimal DFS',
          # optimal: 'Couenne Optimal',
          online_algorithm: 'LFU'}
@@ -189,7 +186,7 @@ def plot_cr(verbose=False):
                 print_info(ex_tree, f'TS: {t}')
             for cache_sz in t_mems:
                 ex_tree.cache_size = cache_sz
-                recurse_algorithm(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
+                pc(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
                 if verbose:
                     print(f'Cache:{cache_sz} {t} = {ex_tree.c_r}')
                 data[t][cache_sz / 1024**2].append(ex_tree.c_r)
@@ -232,7 +229,7 @@ def plot_storage(verbose=False):
                 print_info(ex_tree, f'TS: {t}')
             for cache_sz in t_mems:
                 ex_tree.cache_size = cache_sz
-                recurse_algorithm(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
+                pc(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
                 if verbose:
                     print(f'Cache:{cache_sz} {t} = {ex_tree.map_size}')
                 data[t][cache_sz / 1024**2].append(ex_tree.map_size / 1024)
@@ -272,7 +269,7 @@ def plot_versions(verbose=False):
                 print_info(ex_tree, f'{leaves} Leaves')
             for mem in mems:
                 ex_tree.cache_size = mem
-                recurse_algorithm(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
+                pc(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
                 if verbose:
                     print(f'Cache:{mem} {leaves} Leaves = {cost(ex_tree)}')
                 data[mem][e].append((leaves, cost(ex_tree)))

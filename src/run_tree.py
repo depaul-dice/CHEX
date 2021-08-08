@@ -32,7 +32,7 @@ import psutil
 
 import sciunit_tree
 import ExecutionTree as exT
-from algorithms import recurse_algorithm
+from algorithms import pc
 from runner_util import *
 
 
@@ -139,7 +139,7 @@ def run_tree(tree_binary, cache_size):
                     rec_run(child, cache, create + [child])
 
     tree.cache_size = cache_size
-    recurse_algorithm(tree)
+    pc(tree)
     rec_run(tree.get_node(tree.root))
     os.system(f'sudo kill -KILL {runner_pid}')
     print(f'Total Time = {time.time() - start}')
