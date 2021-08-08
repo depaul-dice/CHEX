@@ -1,3 +1,22 @@
+# CHEX - Multiversion Replay with Ordered Checkpoints
+# Copyright (c) 2020 DePaul University
+#
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+# --------------------------------------------------------------------------------
+#
+# Author: Naga Nithin Manne <nithinmanne@gmail.com>
+
+# File purpose: Miscellaneous utility functions
+
 from functools import singledispatch
 from itertools import islice
 
@@ -79,11 +98,14 @@ def _min_max_depth(ex_tree, node=None):
     depths = []
     for child in ex_tree.children(node):
         depths.extend(_min_max_depth(ex_tree, child.identifier))
-    if not depths: return 1, 1
+    if not depths:
+        return 1, 1
     return 1 + min(depths), 1 + max(depths)
 
+
 def print_info(ex_tree, name=''):
-    if name: print(name)
+    if name:
+        print(name)
     print('Leaves', len(ex_tree.leaves(ex_tree.root)))
     print('Total Cost', cost(ex_tree))
     print('Min Cost', min(node.data.r_cost for node in ex_tree.all_nodes()
@@ -115,7 +137,8 @@ def checkpoints_restores(ex_tree):
     def recurse(node, cache):
         cr = 0
         for child, p_in_c in node.data.recursive_cache[cache]:
-            if p_in_c: cr += 1
+            if p_in_c:
+                cr += 1
             if child is not node:
                 cr += recurse(child, cache - (node.data.c_size
                                               if p_in_c else 0))

@@ -18,14 +18,14 @@ Bob uses **CHEX** in replay mode. **CHEX** first determines an efficient *replay
 This repository  has three directories: data, src, and dockerfiles.
 
 * Sample execution trees of all notebooks used in the paper are found under `data`. 
-* CHEX src code for Alice and Bob reside under `src.
-* Sample Alice/Bob scenarios can be constucted using provided dockerfiles under `dockerfile`.
+* CHEX src code for Alice and Bob reside under `src`.
+* Sample Alice/Bob scenarios can be constructed using provided dockerfiles under `dockerfile`.
     
 
 # INSTALL requirements
 
 * Python and OS
-    - python v>=3.8
+    - Python (Version >= 3.8)
     - pip install -r requirements.txt
     - **CHEX** was developed on Ubuntu 20.04
 
@@ -44,7 +44,7 @@ This repository  has three directories: data, src, and dockerfiles.
 
 Two sample notebook examples are provided under the directory dockerfiles. 
 For these notebooks, we have created corresponding dockerfiles. 
-The dockerfile for Alice downloads the specific Github repository, creates notebook versions, and generates execution trees using the code from this repository.
+The dockerfile for Alice downloads the specific GitHub repository, creates notebook versions, and generates execution trees using the code from this repository.
 
 The dockerfile for Bob recreates the same notebook environment and allows the user to replay the notebooks using algorithms provided from this repo. 
 
