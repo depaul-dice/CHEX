@@ -23,6 +23,7 @@ from collections import defaultdict as ddict
 
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib import ticker as mtick
 
 import ExecutionTree as exT
 from util import *
@@ -34,8 +35,12 @@ from solver_algorithms import *
 plt.rc('font', size=16)
 plt.rc('errorbar', capsize=10)
 
-PLOT_ERROR_BARS = True
+PLOT_ERROR_BARS = False
 PLOT_FILL_BETWEEN = False
+PLOT_SHOW_TITLE = False
+PLOT_YMIN_ZERO = False
+PLOT_Y_PERC = True
+PLOT_Y0_BOLD = True
 VERBOSE_SHOW_PLOT = False
 ALGORITHM_VERBOSE = False
 VERBOSE_PRINT_INFO = True
@@ -48,7 +53,7 @@ ALGOS = {prp_v1: 'PRP-v1',
          # optimal: 'Couenne Optimal',
          lfu: 'LFU'}
 
-LINSHAPES = ['*-', '.-', 'x-', '<-', '>-', 's-', 'D-']
+LINSHAPES = ['*-', '.-', 'x-', '<-', 's-', 'D-', '>-']
 
 LABEL_COMPUTE_COST = lambda p: f'Total Replay Cost (in $10^{p}$ sec)'
 LABEL_CACHE_SIZE_MAP = {2: 'MB', 3: 'GB'}
@@ -61,17 +66,18 @@ def plot_real(verbose=False):
              'natgas.bin': 'Natural Gas',
              'nasa.bin': 'NASA',
              'timeseries.bin': 'TimeSeries'}
-    mems = [[i * 200 * 1024 ** 2 for i in range(1, 50)],
-            [i * 20 * 1024 ** 2 for i in range(1, 50)],
-            [i * 1024 ** 3 for i in range(1, 10)],
-            [i * 50 * 1024 ** 2 for i in range(1, 20)],
-            [i * 10 * 1024 ** 2 for i in range(1, 10)],
-            [i * 4 * 1024 ** 3 for i in range(1, 20)]]
-    label_ps = [(3, 3), (2, 2), (3, 3), (2, 3), (2, 3), (3, 3)]
+    mems = [[i * 1.8 * 1024 ** 3  for i in range(1, 21)],
+            [i * 0.38 * 1024 ** 3  for i in range(1, 21)],
+            [i * 2 * 1024 ** 3  for i in range(1, 21)],
+            [i * 0.1 * 1024 ** 3  for i in range(1, 21)],
+            [i * 0.05 * 1024 ** 3  for i in range(1, 21)],
+            [i * 11 * 1024 ** 3  for i in range(1, 21)]]
+    label_ps = [(3, 3), (3, 2), (3, 3), (3, 3), (3, 3), (3, 3)]
 
     data = ddict(dict)
 
     for t, tmems, p in zip(trees, mems, label_ps):
+        tmems = [int(tmem) for tmem in tmems]
         ex_tree = exT.create_tree('SCIUNIT', f'data/{t}')
         if verbose and VERBOSE_PRINT_INFO:
             print_info(ex_tree, trees[t])
@@ -85,10 +91,30 @@ def plot_real(verbose=False):
                 data[t][algorithm].append((cache_sz / 1024**p[0], cost(ex_tree) / 10**p[1]))
                 ex_tree.reset()
             plt.plot(*zip(*data[t][algorithm]), l, label=ALGOS[algorithm])
-        plt.xlabel(LABEL_CACHE_SIZE(p[0]))
-        plt.ylabel(LABEL_COMPUTE_COST(p[1]))
+        # plt.xlabel(LABEL_CACHE_SIZE(p[0]))
+        plt.xlabel(f'Cache Size (X = {tmems[0] / 1024**p[0]:.2f} {LABEL_CACHE_SIZE_MAP[p[0]]})')
+        plt.ylabel(f'Total Replay Cost (% of {cost(ex_tree):.0f} s)')
+        # plt.ylabel(LABEL_COMPUTE_COST(p[1]))
         plt.legend()
-        # plt.title(trees[t])
+        if PLOT_YMIN_ZERO:
+            plt.ylim(ymin=0)
+        if PLOT_Y_PERC:
+            plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(cost(ex_tree) / 10**p[1]))
+            # plt.gca().xaxis.set_major_formatter(mtick.PercentFormatter(tmems[-1] / 1024**p[0]))
+            # xticks = plt.xticks()[0]
+            xticks = [i * tmems[0] / 1024**p[0] for i in [0, 4, 8, 12, 16, 20]]
+            plt.xticks(ticks=xticks, labels=[f'{x / (tmems[0] / 1024**p[0]):.0f}X' for x in xticks])
+        if PLOT_SHOW_TITLE:
+            plt.title(trees[t])
+        if PLOT_Y0_BOLD:
+            plt.draw()
+            plt.gca().get_yticklabels()[1].set_color('red')
+            plt.gca().get_yticklabels()[1].set_weight('bold')
+            while False:
+                try:
+                    print(eval(input('>> ')))
+                except Exception:
+                    pass
         plt.savefig(f'{t}.jpg', dpi=1200, bbox_inches='tight')
         if verbose and VERBOSE_SHOW_PLOT:
             plt.show()
@@ -163,7 +189,10 @@ def plot_synthetic(verbose=False):
         plt.xlabel(LABEL_CACHE_SIZE(3))
         plt.ylabel(LABEL_COMPUTE_COST(3))
         plt.legend()
-        # plt.title(tname)
+        if PLOT_YMIN_ZERO:
+            plt.ylim(ymin=0)
+        if PLOT_SHOW_TITLE:
+            plt.title(tname)
         plt.savefig(f'{tname}.jpg', dpi=1200, bbox_inches='tight')
         if verbose and VERBOSE_SHOW_PLOT:
             plt.show()
@@ -206,7 +235,10 @@ def plot_cr(verbose=False):
     plt.xlabel(LABEL_CACHE_SIZE(2))
     plt.ylabel('Total Checkpoints/Restores')
     plt.legend()
-    # plt.title('Checkpoints/Restores By Algorithm')
+    if PLOT_YMIN_ZERO:
+        plt.ylim(ymin=0)
+    if PLOT_SHOW_TITLE:
+        plt.title('Checkpoints/Restores By Algorithm')
     plt.savefig(f'c_r.jpg', dpi=1200, bbox_inches='tight')
     if verbose and VERBOSE_SHOW_PLOT:
         plt.show()
@@ -214,7 +246,7 @@ def plot_cr(verbose=False):
 
 
 def plot_storage(verbose=False):
-    tree_args = [8, 16, 24, 32]
+    tree_args = [(16, pc), (16, prp_v2), (32, pc), (32, prp_v2)]
     mems = [[i * 200 * 1024 ** 2 for i in range(1, 15)],
             [i * 200 * 1024 ** 2 for i in range(1, 15)],
             [i * 200 * 1024 ** 2 for i in range(1, 15)],
@@ -222,34 +254,37 @@ def plot_storage(verbose=False):
 
     data = ddict(lambda: ddict(list))
 
-    for t, t_mems, l in zip(tree_args, mems, LINSHAPES):
+    for (t, algo), t_mems, l in zip(tree_args, mems, LINSHAPES):
         for _ in range(EXP_COUNT):
             ex_tree = exT.create_tree('SIZE', t, 4, 6, an_node_factory)
             if verbose and VERBOSE_PRINT_INFO:
                 print_info(ex_tree, f'TS: {t}')
             for cache_sz in t_mems:
                 ex_tree.cache_size = cache_sz
-                pc(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
+                algo(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
                 if verbose:
-                    print(f'Cache:{cache_sz} {t} = {ex_tree.map_size}')
-                data[t][cache_sz / 1024**2].append(ex_tree.map_size / 1024)
+                    print(f'Cache:{cache_sz} {t}-{ALGOS[algo]} = {ex_tree.map_size}')
+                data[t, algo][cache_sz / 1024**2].append(ex_tree.map_size / 1024)
                 ex_tree.reset()
         x, y, dy = [], [], []
-        for c in data[t]:
+        for c in data[t, algo]:
             x.append(c)
-            y.append(np.mean(data[t][c]))
-            dy.append(np.std(data[t][c]))
+            y.append(np.mean(data[t, algo][c]))
+            dy.append(np.std(data[t, algo][c]))
         y, dy = np.array(y), np.array(dy)
         if PLOT_ERROR_BARS:
-            plt.errorbar(x, y, yerr=dy, fmt=l, label=f'TS: {t}')
+            plt.errorbar(x, y, yerr=dy, fmt=l, label=f'TS: {t} Algo: {ALGOS[algo]}')
         else:
-            plt.plot(x, y, l, label=f'TS: {t}')
+            plt.plot(x, y, l, label=f'TS: {t} Algo: {ALGOS[algo]}')
         if PLOT_FILL_BETWEEN:
             plt.fill_between(x, y - dy, y + dy, alpha=.2)
     plt.xlabel(LABEL_CACHE_SIZE(2))
     plt.ylabel('Total Storage Used (in KB)')
     plt.legend()
-    # plt.title('Storage Used By Algorithm')
+    if PLOT_YMIN_ZERO:
+        plt.ylim(ymin=0)
+    if PLOT_SHOW_TITLE:
+        plt.title('Storage Used By Algorithm')
     plt.savefig(f'storage.jpg', dpi=1200, bbox_inches='tight')
     if verbose and VERBOSE_SHOW_PLOT:
         plt.show()
@@ -304,7 +339,10 @@ def plot_versions(verbose=False):
     plt.xlabel('Available Cost (in $10^3$ sec)')
     plt.ylabel('No. of Versions')
     plt.legend()
-    # plt.title('No. of Versions that can be run with given cost')
+    if PLOT_YMIN_ZERO:
+        plt.ylim(ymin=0)
+    if PLOT_SHOW_TITLE:
+        plt.title('No. of Versions that can be run with given cost')
     plt.savefig('versions.jpg', dpi=1200, bbox_inches='tight')
     if verbose and VERBOSE_SHOW_PLOT:
         plt.show()
@@ -346,8 +384,60 @@ def plot_algotime(verbose=False):
     plt.xlabel('Tree Size (TS)')
     plt.ylabel('Algorithm Running Time (in mS)')
     plt.legend()
-    # plt.title('Running Time')
+    if PLOT_YMIN_ZERO:
+        plt.ylim(ymin=0)
+    if PLOT_SHOW_TITLE:
+        plt.title('Running Time')
     plt.savefig('running_time.jpg', dpi=1200, bbox_inches='tight')
+    if verbose and VERBOSE_SHOW_PLOT:
+        plt.show()
+    plt.clf()
+
+
+def plot_timevstorage(verbose=False):
+    tree_args = [16, 24, 32, 64]
+    mems = [[i * 200 * 1024 ** 2 for i in range(1, 15)],
+            [i * 200 * 1024 ** 2 for i in range(1, 15)],
+            [i * 200 * 1024 ** 2 for i in range(1, 15)],
+            [i * 200 * 1024 ** 2 for i in range(1, 15)],
+            [i * 200 * 1024 ** 2 for i in range(1, 15)]]
+
+    data = ddict(lambda: ddict(list))
+
+    for t, t_mems, l in zip(tree_args, mems, LINSHAPES):
+        for _ in range(EXP_COUNT):
+            ex_tree = exT.create_tree('SIZE', t, 4, 6, an_node_factory)
+            if verbose and VERBOSE_PRINT_INFO:
+                print_info(ex_tree, f'TS: {t}')
+            for cache_sz in t_mems:
+                ex_tree.cache_size = cache_sz
+                begin = time.time()
+                pc(ex_tree, verbose=False)
+                end = time.time()
+                if verbose:
+                    print(f'Cache:{cache_sz} {t} Time = {end - begin}')
+                data[t][cache_sz / 1024**2].append(1000 * (end - begin))
+                ex_tree.reset()
+        x, y, dy = [], [], []
+        for c in data[t]:
+            x.append(c)
+            y.append(np.mean(data[t][c]))
+            dy.append(np.std(data[t][c]))
+        y, dy = np.array(y), np.array(dy)
+        if PLOT_ERROR_BARS:
+            plt.errorbar(x, y, yerr=dy, fmt=l, label=f'TS: {t}')
+        else:
+            plt.plot(x, y, l, label=f'TS: {t}')
+        if PLOT_FILL_BETWEEN:
+            plt.fill_between(x, y - dy, y + dy, alpha=.2)
+    plt.xlabel(LABEL_CACHE_SIZE(2))
+    plt.ylabel('Total Time Taken (in msec)')
+    plt.legend()
+    if PLOT_YMIN_ZERO:
+        plt.ylim(ymin=0)
+    if PLOT_SHOW_TITLE:
+        plt.title('Time Taken By Algorithm')
+    plt.savefig(f'tvs.jpg', dpi=1200, bbox_inches='tight')
     if verbose and VERBOSE_SHOW_PLOT:
         plt.show()
     plt.clf()
@@ -396,3 +486,4 @@ if __name__ == '__main__':
     plot_versions(verbose=True)
     plot_algotime(verbose=True)
     plot_couenne(verbose=True)
+    plot_timevstorage(verbose=True)
