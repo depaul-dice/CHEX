@@ -64,7 +64,7 @@ To install and run these dockerfiles
 ### B. Regenerate the figures in the paper:
 
 1. Follow install instructions under INSTALL
-2. Run ```python plot.py```
+2. Run ```python src\replay\plot.py```
 
 
 ## How to reproduce CHEX using your own notebooks?
