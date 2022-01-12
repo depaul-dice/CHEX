@@ -38,6 +38,35 @@ This repository  has three directories: data, src, and dockerfiles.
 ---
 # Evaluating this artifact
 
+## The complete CHEX system is now also available as part of [Sciunit framework](https://sciunit.run/)
+
+# Installation
+
+* Dependencies
+    - Python (Version >= 3.8)
+    - CMake
+    - CRIU (https://criu.org/Installation)
+
+* Install from experimental `chex` branch in [Sciunit](https://bitbucket.org/geotrust/sciunit2/src/chex/)
+    - Create a new virtual environment
+    - ```pip install git+https://bitbucket.org/geotrust/sciunit2@chex```
+
+# Usage
+
+* Create a Sciunit Project
+    - ```sciunit create <Project Name>```
+
+* Convert Notebooks to Python Files
+    - ```sciunit convert <.ipynb>```
+
+* Execute Each Python file one-by-one - CHEX Audit
+    - ```sciunit exec python <.py>```
+    - Each time, Sciunit creates a new execution `e<i>`
+
+* Multi version replay the required executions - CHEX Replay
+    - ```sciunit mve e<i>-<j> <Cache Size>```
+
+
 ## How to repeat our results? 
 
 ### A. Sample Alice/Bob scenarios 
