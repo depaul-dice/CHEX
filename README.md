@@ -59,7 +59,7 @@ This repository  has three directories: data, src, and dockerfiles.
 
 2. Build Dockerfile as:
    ```docker build -t <tagname> .```
-     This dockerfile should consist of notbooks, their dependecies, and   
+     This dockerfile should consist of notebooks, their dependecies, and Sciunit
 
 3. _Some instructions to enter the Docker container_ 
     
@@ -67,7 +67,7 @@ This repository  has three directories: data, src, and dockerfiles.
     
 * Create a Sciunit Project
     - ```sciunit create <Project Name>```
-    For ML1 run as:
+    - For ML1 run as:
      ```sciunit create ML1
 
 * Convert Notebooks to Python Files
