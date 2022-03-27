@@ -46,11 +46,11 @@ This repository  has three directories: data, src, and dockerfiles.
 ---
 # Evaluating this artifact
 
-# Repeating the results reported in the paper
+## Repeating the results reported in the paper
 
 1. Run ```python src\replay\plot.py```
 
-# Reproducing new results with same notebooks 
+## Reproducing new results with same notebooks 
 
 1. Install Docker from https://docs.docker.com/get-docker/ 
 2. 2. ```pip install git+https://bitbucket.org/geotrust/sciunit2@chex```
