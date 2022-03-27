@@ -74,13 +74,13 @@ There are _5_ notebooks provided. For each notebook do steps 2-5.
 
 * Convert Notebooks to Python Files
     - ```sciunit convert <file.ipynb>```
-    For ML1, v1 this is same as
+    - For ML1, v1 this is same as
     ```sciunit convert <ML11.ipynb>```
 
 * Execute Each Python file **one-by-one**. 
     - ```sciunit exec python <file.py>```
     Each time, Sciunit creates a new execution `e<i>`
-    For ML1, v1 this is same as
+    - For ML1, v1 this is same as
     ```sciunit exec python ML11.py```
 
 The above step refers to CHEX Audit in the figure and regenerates the execution trees. 
