@@ -14,6 +14,11 @@ Alice uses **CHEX** in audit mode to execute each version. **CHEX** audits detai
 
 Bob uses **CHEX** in replay mode. **CHEX** first determines an efficient *replay sequence* or replay order for him, i.e., a plan for execution that includes checkpoint caching decisions. To do so **CHEX** asks Bob to provide a cache size bound, B, and then executes a heuristic algorithm on the execution tree received from Alice to determine the most cost efficient replay sequence for that cache size. We describe some efficient heuristics for this purpose. Finally, once the replay sequence is computed, **CHEX** uses this replay sequence to *compute, checkpoint, restore-switch* REPL program cells or *evict* stored checkpoints from cache.
 
+The **Chex** paper: 
+Naga Nithin Manne, Shilvi Satpati, Tanu Malik, Amitabha Bagchi, Ashish
+Gehani, and Amitabh Chaudhary. CHEX: Multiversion Replay with
+Ordered Checkpoints. PVLDB, 15(6): 1297-1310, 2022
+doi:10.14778/3514061.3514075
 
 This repository  has three directories: data, src, and dockerfiles.
 
@@ -24,19 +29,70 @@ This repository  has three directories: data, src, and dockerfiles.
 
 # INSTALL requirements
 
-* Python and OS
+* OS
+   - Ubuntu 20.04
+   
+* Python
     - Python (Version >= 3.8)
     - pip install -r requirements.txt
-    - **CHEX** was developed on Ubuntu 20.04
 
-* The repository uses CRIU. 
+* CRIU. 
     - Install from https://criu.org/Installation
 
 * Optimal algorithm uses Couenne.
     - Download and install from: https://projects.coin-or.org/Couenne
-
+    - Update: Not needed for set of results reported in PVLDB paper. 
+   
 ---
 # Evaluating this artifact
+
+# Repeating the results reported in the paper
+
+1. Run ```python src\replay\plot.py```
+
+# Reproducing new results with same notebooks 
+
+1. Install Docker from https://docs.docker.com/get-docker/ 
+2. 2. ```pip install git+https://bitbucket.org/geotrust/sciunit2@chex```
+
+2. Build Dockerfile as:
+   ```docker build -t <tagname> .```
+
+3. <<Some instructions to enter the Docker container >>
+    
+4. Run Sciunit to audit and replay with the provided notebooks.  
+    
+* Create a Sciunit Project
+    - ```sciunit create <Project Name>```
+    For ML1 run as:
+    - ```sciunit create ML1
+
+* Convert Notebooks to Python Files
+    - ```sciunit convert <file.ipynb>```
+    For ML1, v1 this is same as
+    -```sciunit convert <ML11.ipynb>```
+
+* Execute Each Python file **one-by-one**. 
+    - ```sciunit exec python <file.py>```
+    Each time, Sciunit creates a new execution `e<i>`
+    For ML1, v1 this is same as
+    -```sciunit exec python ML11.py```
+
+The above step refers to CHEX Audit in the figure and regenerates the execution trees. 
+
+* List all executions as 
+    -```sciunit list```
+    
+* Multi version replay the required executions - CHEX Replay
+    - ```sciunit mve e<i>-<j> <Cache Size>```
+    
+5. To regenerate the figures, export the execution tree as: 
+    
+    - <<Give a command to export the tree and place the tree under the data directory.
+    - Run ```python src\replay\plot.py```
+
+
+    
 
 ## The complete CHEX system is now also available as part of [Sciunit framework](https://sciunit.run/)
 
@@ -66,6 +122,7 @@ This repository  has three directories: data, src, and dockerfiles.
 * Multi version replay the required executions - CHEX Replay
     - ```sciunit mve e<i>-<j> <Cache Size>```
 
+# Old README
 
 ## How to repeat our results? 
 
