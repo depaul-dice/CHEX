@@ -87,16 +87,18 @@ The above step refers to CHEX Audit in the figure and regenerates the execution 
 
 * List all executions as 
     ```sciunit list```
-    
-* Multi version replay the required executions - CHEX Replay
-     ```sciunit mve e<i>-<j> <Cache Size>```
-    
+
 5. To regenerate the figures, export the execution tree as: 
     
     - _Give a command to export the tree and place the tree under the data directory._
     - Run ```python src\replay\plot.py```
 
+6. To perform multiversion replay use the mve sub-command. This is CHEX Replay in the above figure. 
+   - ```sciunit mve e<i>-<j> <Cache Size>```
+   - Cache size is a parameter that specifies the size of the cache. Possible options are _1GB_
+    
 
+# OLD DOCUMENTATION
     
 
 ## The complete CHEX system is now also available as part of [Sciunit framework](https://sciunit.run/)
