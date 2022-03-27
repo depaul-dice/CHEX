@@ -75,7 +75,7 @@ There are _5_ notebooks provided. For each notebook do steps 2-5.
 * Convert Notebooks to Python Files
     - ```sciunit convert <file.ipynb>```
     - For ML1, v1 this is same as
-    ```sciunit convert <ML11.ipynb>```
+    ```sciunit convert ML11.ipynb```
 
 * Execute Each Python file **one-by-one**. 
     - ```sciunit exec python <file.py>```
