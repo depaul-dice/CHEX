@@ -61,7 +61,7 @@ This repository  has three directories: data, src, and dockerfiles.
    ```docker build -t <tagname> .```
      This dockerfile should consist of notbooks, their dependecies, and   
 
-3. <Some instructions to enter the Docker container >
+3. _Some instructions to enter the Docker container_ 
     
 4. Run Sciunit to audit and replay with the provided notebooks.  
     
@@ -91,7 +91,7 @@ The above step refers to CHEX Audit in the figure and regenerates the execution 
     
 5. To regenerate the figures, export the execution tree as: 
     
-    - <<Give a command to export the tree and place the tree under the data directory.
+    - _Give a command to export the tree and place the tree under the data directory._
     - Run ```python src\replay\plot.py```
 
 
