@@ -57,9 +57,11 @@ This repository  has three directories: data, src, and dockerfiles.
 
 1. Install Docker from https://docs.docker.com/get-docker/ 
 
-2. Build Dockerfile as:
+There are _5_ notebooks provided. For each notebook do steps 2-5. 
+
+2. Build a notebook Dockerfile as:
    ```docker build -t <tagname> .```
-     This dockerfile should consist of notebooks, their dependecies, and Sciunit
+     This dockerfile should consist of notebooks, their dependecies, and Sciunit.
 
 3. _Some instructions to enter the Docker container_ 
     
@@ -68,7 +70,7 @@ This repository  has three directories: data, src, and dockerfiles.
 * Create a Sciunit Project
     - ```sciunit create <Project Name>```
     - For ML1 run as:
-     ```sciunit create ML1
+     ```sciunit create ML1```
 
 * Convert Notebooks to Python Files
     - ```sciunit convert <file.ipynb>```
