@@ -34,7 +34,7 @@ This repository  has three directories: data, src, and dockerfiles.
    
 * Python
     - Python (Version >= 3.8)
-    - pip install -r requirements.txt
+    - ```pip install -r requirements.txt```
 
 * CRIU. 
     - Install from https://criu.org/Installation
@@ -42,6 +42,9 @@ This repository  has three directories: data, src, and dockerfiles.
 * Optimal algorithm uses Couenne.
     - Download and install from: https://projects.coin-or.org/Couenne
     - Update: Not needed for set of results reported in PVLDB paper. 
+   
+* Clone this repo.
+    - ```git clone https://github.com/depaul-dice/CHEX```
    
 ---
 # Evaluating this artifact
@@ -53,10 +56,10 @@ This repository  has three directories: data, src, and dockerfiles.
 ## Reproducing new results with same notebooks 
 
 1. Install Docker from https://docs.docker.com/get-docker/ 
-2. 2. ```pip install git+https://bitbucket.org/geotrust/sciunit2@chex```
 
 2. Build Dockerfile as:
    ```docker build -t <tagname> .```
+     This dockerfile should consist of notbooks, their dependecies, and   
 
 3. <<Some instructions to enter the Docker container >>
     
