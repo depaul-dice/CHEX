@@ -61,33 +61,33 @@ This repository  has three directories: data, src, and dockerfiles.
    ```docker build -t <tagname> .```
      This dockerfile should consist of notbooks, their dependecies, and   
 
-3. <<Some instructions to enter the Docker container >>
+3. <Some instructions to enter the Docker container >
     
 4. Run Sciunit to audit and replay with the provided notebooks.  
     
 * Create a Sciunit Project
     - ```sciunit create <Project Name>```
     For ML1 run as:
-    - ```sciunit create ML1
+     ```sciunit create ML1
 
 * Convert Notebooks to Python Files
     - ```sciunit convert <file.ipynb>```
     For ML1, v1 this is same as
-    -```sciunit convert <ML11.ipynb>```
+    ```sciunit convert <ML11.ipynb>```
 
 * Execute Each Python file **one-by-one**. 
     - ```sciunit exec python <file.py>```
     Each time, Sciunit creates a new execution `e<i>`
     For ML1, v1 this is same as
-    -```sciunit exec python ML11.py```
+    ```sciunit exec python ML11.py```
 
 The above step refers to CHEX Audit in the figure and regenerates the execution trees. 
 
 * List all executions as 
-    -```sciunit list```
+    ```sciunit list```
     
 * Multi version replay the required executions - CHEX Replay
-    - ```sciunit mve e<i>-<j> <Cache Size>```
+     ```sciunit mve e<i>-<j> <Cache Size>```
     
 5. To regenerate the figures, export the execution tree as: 
     
