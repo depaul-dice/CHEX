@@ -41,7 +41,7 @@ This repository  has three directories: data, src, and dockerfiles.
 
 * Optimal algorithm uses Couenne.
     - Download and install from: https://projects.coin-or.org/Couenne
-    - Update: Not needed for set of results reported in PVLDB paper. 
+    - Update: Not needed for set of results reported in PVLDB paper. You may ignore Couenne for now. 
    
 * Clone this repo.
     - ```git clone https://github.com/depaul-dice/CHEX```
