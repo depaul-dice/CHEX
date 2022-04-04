@@ -36,16 +36,13 @@ This repository  has three directories: data, src, and dockerfiles.
     - Python (Version >= 3.8)
     - ```pip install -r requirements.txt```
 
-* CRIU. 
-    - Install from https://criu.org/Installation
+* Clone this repo.
+    - ```git clone https://github.com/depaul-dice/CHEX```
 
 * Optimal algorithm uses Couenne.
     - Download and install from: https://projects.coin-or.org/Couenne
-    - Update: Not needed for set of results reported in PVLDB paper. You may ignore Couenne for now. 
-   
-* Clone this repo.
-    - ```git clone https://github.com/depaul-dice/CHEX```
-   
+    - Update: Not needed for set of results reported in PVLDB paper. You can ignore Couenne for now. 
+      
 ---
 # Evaluating this artifact
 
@@ -57,11 +54,12 @@ This repository  has three directories: data, src, and dockerfiles.
 
 1. Install Docker from https://docs.docker.com/get-docker/ 
 
-There are _5_ notebooks provided. For each notebook do steps 2-5. 
+Using Dockerfiles we will create Alice's environment in which we will audit the notebooks and create new execution trees. 
+There are _5_ notebook dockerfiles. For each notebook do steps 2-5. 
 
 2. Build a notebook Dockerfile as:
    ```docker build -t <tagname> .```
-     This dockerfile should consist of notebooks, their dependecies, and Sciunit.
+     This dockerfile consists of notebooks, their dependencies, and Sciunit.
 
 3. _Some instructions to enter the Docker container_ 
     
@@ -88,98 +86,10 @@ The above step refers to CHEX Audit in the figure and regenerates the execution 
 * List all executions as 
     ```sciunit list```
 
-5. To regenerate the figures, export the execution tree as: 
+5. To regenerate the figures plot.py reads the updated execution tree from Sciunit: 
     
-    - _Give a command to export the tree and place the tree under the data directory._
     - Run ```python src\replay\plot.py```
-
-6. To perform multiversion replay use the mve sub-command. This is CHEX Replay in the above figure. 
-   - ```sciunit mve e<i>-<j> <Cache Size>```
-   - Cache size is a parameter that specifies the size of the cache. Possible options are _1GB_
+This will regenerate the figures 8,9,and 10 of the paper with new execution trees. 
     
-
-# OLD DOCUMENTATION
-    
-
-## The complete CHEX system is now also available as part of [Sciunit framework](https://sciunit.run/)
-
-# Installation
-
-* Dependencies
-    - Python (Version >= 3.8)
-    - CMake
-    - CRIU (https://criu.org/Installation)
-
-* Install from experimental `chex` branch in [Sciunit](https://bitbucket.org/geotrust/sciunit2/src/chex/)
-    - Create a new virtual environment
-    - ```pip install git+https://bitbucket.org/geotrust/sciunit2@chex```
-
-# Usage
-
-* Create a Sciunit Project
-    - ```sciunit create <Project Name>```
-
-* Convert Notebooks to Python Files
-    - ```sciunit convert <.ipynb>```
-
-* Execute Each Python file one-by-one - CHEX Audit
-    - ```sciunit exec python <.py>```
-    - Each time, Sciunit creates a new execution `e<i>`
-
-* Multi version replay the required executions - CHEX Replay
-    - ```sciunit mve e<i>-<j> <Cache Size>```
-
-# Old README
-
-## How to repeat our results? 
-
-### A. Sample Alice/Bob scenarios 
-
-Two sample notebook examples are provided under the directory docker. 
-For these notebooks, we have created corresponding dockerfiles. 
-The dockerfile for Alice downloads the specific GitHub repository, creates notebook versions, and generates execution trees using the code from this repository.
-
-The dockerfile for Bob recreates the same notebook environment and allows the user to replay the notebooks using algorithms provided from this repo. 
-
-To install and run these dockerfiles
-
-1. Install Docker from https://docs.docker.com/get-docker/
-2. Clone this repo.
-3. Build Dockerfile as:
-   ```docker build -t <tagname> .```
-4. To run as Alice:
-   ```docker run -v <Output Folder>:/output --privileged --cap-add all -it <tagname>```
-5. To run as Bob:
-  ```docker run --privileged --cap-add all -it <tagname>```
-
-`/output` in container has the output tree
-
-### B. Regenerate the figures in the paper:
-
-1. Follow install instructions under INSTALL
-2. Run ```python src\replay\plot.py```
-
-
-## How to reproduce CHEX using your own notebooks?
-
-### A. Generate Execution trees:
- 
- 1. Run ```python run_notebooks.py <Notebooks Path> <Output Tree>```
-
-This command should be run from the same folder in which the notebook versions are present and were executed. 
-Note, the command currently does not produce a container-based execution tree. Code for that is still under works over here: 
-https://bitbucket.org/depauldbgroup/provenance-to-use/src/notebook
-
-### B. Generate the replay sequence
-
- 1. Run ```python replay-order.py pc|prpv1|prpv2|lfu <cache_size> <input tree.bin> <output replay-order.bin>```
-
-sample.bin must be under data directory. 
-output of this command is replay-order.bin
-
-### C. For replaying 
-
- 1. Run ```python replay.py replay-order.bin```
-
 ---
 This material is based upon work supported by the National Science Foundation under Grants CNS-1846418, ICER-1639759, ICER-1661918, and a DoE BSSw Fellowship. Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
