@@ -167,3 +167,22 @@ def sciunit_tree_creator(tree_binary, sciunit_tree_module_path='sciunit_tree'):
     sciunit_execution_tree.size = float('inf')
     recursive_fill(sciunit_execution_tree)
     return tree
+
+
+@register_tree_creator('CHEX')
+def sciunit_tree_creator(chex_execution_tree):
+    """Create a tree using the real world CHEX repo tree"""
+    tree = ExecutionTree()
+    count = 0
+
+    def recursive_fill(node, parent=None):
+        nonlocal count
+        node.hash = f'n{count}'
+        count += 1
+        tree.create_node(node.hash, node.hash, parent=parent.hash if parent else None,
+                         data=NodeData(node.c, node.s))
+        for child in node.children:
+            recursive_fill(child, node)
+
+    recursive_fill(chex_execution_tree.root)
+    return tree

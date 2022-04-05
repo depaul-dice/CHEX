@@ -16,8 +16,9 @@
 # Author: Naga Nithin Manne <nithinmanne@gmail.com>
 
 # File purpose: Generate all plots present in the paper
-
+import os
 import sys
+import glob
 import random
 import time
 from collections import defaultdict as ddict
@@ -111,11 +112,6 @@ def plot_real(verbose=False):
             plt.draw()
             plt.gca().get_yticklabels()[1].set_color('red')
             plt.gca().get_yticklabels()[1].set_weight('bold')
-            while False:
-                try:
-                    print(eval(input('>> ')))
-                except Exception:
-                    pass
         plt.savefig(f'{t}.jpg', dpi=1200, bbox_inches='tight')
         if verbose and VERBOSE_SHOW_PLOT:
             plt.show()
@@ -480,7 +476,57 @@ def plot_couenne(verbose=False):
 
 
 def plot_sciunit(verbose=False):
-    pass
+    from sciunit2 import workspace
+    from sciunit_convert.tree import Tree
+    from sciunit_convert.nbrunner import tree_update
+    if verbose:
+        print(workspace.current()[1].location)
+    tt = Tree()
+    for f in glob.glob(f'{workspace.current()[1].location}/e*.bin'):
+        e = os.path.splitext(os.path.split(f)[1])[0][1:]
+        if verbose:
+            print(f, e)
+        tree_update(tt, e, f)
+
+    data = {}
+    tmems = [int(i * 5 * 1024 ** 3) for i in range(1, 41)]
+    p = (3, 3)
+    ex_tree = exT.create_tree('CHEX', tt)
+    if verbose and VERBOSE_PRINT_INFO:
+        print_info(ex_tree, 'Sciunit')
+    for algorithm, l in zip(ALGOS, LINSHAPES):
+        data[algorithm] = [(0, cost(ex_tree) / 10 ** p[1])]
+        for cache_sz in tmems:
+            ex_tree.cache_size = cache_sz
+            algorithm(ex_tree, verbose=verbose and ALGORITHM_VERBOSE)
+            if verbose:
+                print(f'{ALGOS[algorithm]} Cost (Cache:{cache_sz}) = {cost(ex_tree)}')
+            data[algorithm].append((cache_sz / 1024 ** p[0], cost(ex_tree) / 10 ** p[1]))
+            ex_tree.reset()
+        plt.plot(*zip(*data[algorithm]), l, label=ALGOS[algorithm])
+    # plt.xlabel(LABEL_CACHE_SIZE(p[0]))
+    plt.xlabel(f'Cache Size (X = {tmems[0] / 1024 ** p[0]:.2f} {LABEL_CACHE_SIZE_MAP[p[0]]})')
+    plt.ylabel(f'Total Replay Cost (% of {cost(ex_tree):.0f} s)')
+    # plt.ylabel(LABEL_COMPUTE_COST(p[1]))
+    plt.legend()
+    if PLOT_YMIN_ZERO:
+        plt.ylim(ymin=0)
+    if PLOT_Y_PERC:
+        plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(cost(ex_tree) / 10 ** p[1]))
+        # plt.gca().xaxis.set_major_formatter(mtick.PercentFormatter(tmems[-1] / 1024**p[0]))
+        # xticks = plt.xticks()[0]
+        xticks = [i * tmems[0] / 1024 ** p[0] for i in [0, 8, 16, 24, 32, 40]]
+        plt.xticks(ticks=xticks, labels=[f'{x / (tmems[0] / 1024 ** p[0]):.0f}X' for x in xticks])
+    if PLOT_SHOW_TITLE:
+        plt.title('Sciunit')
+    if PLOT_Y0_BOLD:
+        plt.draw()
+        plt.gca().get_yticklabels()[1].set_color('red')
+        plt.gca().get_yticklabels()[1].set_weight('bold')
+    plt.savefig(f'sciunit.jpg', dpi=1200, bbox_inches='tight')
+    if verbose and VERBOSE_SHOW_PLOT:
+        plt.show()
+    plt.clf()
 
 
 if __name__ == '__main__':
