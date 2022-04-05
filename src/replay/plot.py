@@ -21,6 +21,7 @@ import sys
 import glob
 import random
 import time
+import json
 from collections import defaultdict as ddict
 
 import numpy as np
@@ -529,6 +530,36 @@ def plot_sciunit(verbose=False):
     plt.clf()
 
 
+def plot_overhead(verbose=False):
+    from sciunit2 import workspace
+    import pandas as pd
+    if verbose:
+        print(workspace.current()[1].location)
+    times = ddict(float)
+    lens = 0
+    for tf in glob.glob(f'{workspace.current()[1].location}/*_times.json'):
+        for k, v in json.load(open(tf)).items():
+            times[k] += v
+        lens += 1
+
+    ntimes = {}
+    nt = times
+    p = .8
+    ntimes[f'sciunit({lens})'] = {'exec': nt['ptu-exec'] * p, 'ptu': nt['ptu-exec'] * (1 - p),
+                                  'dump_blocks': nt['dump_blocks'], 'tree': nt['tree']}
+    df = pd.DataFrame(ntimes).T
+    df = df.div(df.sum(axis=1), axis=0)
+    if verbose:
+        print(pd.DataFrame(ntimes))
+    plt.bar(df.index, df['exec'], hatch='///')
+    plt.bar(df.index, df['ptu'], bottom=df['exec'], hatch='xx')
+    plt.bar(df.index, df['dump_blocks'], bottom=df['ptu'] + df['exec'], hatch='..')
+    plt.legend(labels=['Application Execution Time', 'Time to Monitor Syscalls', 'Time to Hash External References'])
+    plt.ylabel('Time Taken (as % of Total)')
+    plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter(1))
+    plt.savefig('overhead.png', dpi=1200)
+
+
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print(f'Usage: {sys.argv[0]} <plot>')
@@ -550,5 +581,7 @@ if __name__ == '__main__':
         plot_timevstorage(verbose=True)
     elif sys.argv[1] == 'sciunit':
         plot_sciunit(verbose=True)
+    elif sys.argv[1] == 'overhead':
+        plot_overhead(verbose=True)
     else:
         print('Invalid Plot Command')
