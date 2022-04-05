@@ -17,6 +17,7 @@
 
 # File purpose: Generate all plots present in the paper
 
+import sys
 import random
 import time
 from collections import defaultdict as ddict
@@ -478,12 +479,30 @@ def plot_couenne(verbose=False):
     plt.clf()
 
 
+def plot_sciunit(verbose=False):
+    pass
+
+
 if __name__ == '__main__':
-    plot_real(verbose=True)
-    plot_synthetic(verbose=True)
-    plot_storage(verbose=True)
-    plot_cr(verbose=True)
-    plot_versions(verbose=True)
-    plot_algotime(verbose=True)
-    plot_couenne(verbose=True)
-    plot_timevstorage(verbose=True)
+    if len(sys.argv) != 2:
+        print(f'Usage: {sys.argv[0]} <plot>')
+    elif sys.argv[1] == 'real':
+        plot_real(verbose=True)
+    elif sys.argv[1] == 'synthetic':
+        plot_synthetic(verbose=True)
+    elif sys.argv[1] == 'storage':
+        plot_storage(verbose=True)
+    elif sys.argv[1] == 'cr':
+        plot_cr(verbose=True)
+    elif sys.argv[1] == 'versions':
+        plot_versions(verbose=True)
+    elif sys.argv[1] == 'algotime':
+        plot_algotime(verbose=True)
+    # elif sys.argv[1] == 'couenne':
+    #     plot_couenne(verbose=True)
+    elif sys.argv[1] == 'timevstorage':
+        plot_timevstorage(verbose=True)
+    elif sys.argv[1] == 'sciunit':
+        plot_sciunit(verbose=True)
+    else:
+        print('Invalid Plot Command')
