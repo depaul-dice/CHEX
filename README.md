@@ -99,8 +99,9 @@ The above step refers to CHEX Audit in the figure and regenerates the execution 
 
 5. To regenerate the figures plot.py reads the updated execution tree from Sciunit: 
     
-    - Run ```python chex/src/replay/plot.py sciunit```. The CHEX repo is present in the `chex` folder in the current directory.
+    - Run ```python src/replay/plot.py sciunit```. The CHEX repo is present in the `chex` folder in the current directory.
 This will regenerate the figure 8 of the paper with new execution trees.
+Since the plot will be inside a docker container, it would be useful to mount `/chex` directory of the container to view them.
     
 ---
 This material is based upon work supported by the National Science Foundation under Grants CNS-1846418, ICER-1639759, ICER-1661918, and a DoE BSSw Fellowship. Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
