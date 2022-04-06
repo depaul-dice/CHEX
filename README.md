@@ -48,7 +48,17 @@ This repository  has three directories: data, src, and dockerfiles.
 
 ## Repeating the results reported in the paper
 
-1. Run ```python src\replay\plot.py```
+1. Run ```python src\replay\plot.py <plot>```
+* Plots Available
+  * real - Fig 8
+  * synthetic
+  * storage - Fig 10(b)
+  * cr - Fig 10(c)
+  * versions - Fig 9(a)
+  * algotime - Fig 10(a)
+  * timevstorage
+  * sciunit - Fig 8 - Only available after running notebooks with Sciunit as explained after this
+  * overhead - Fig 9(b) - Only available after running notebooks with Sciunit as explained after this
 
 ## Reproducing new results with same notebooks 
 
@@ -61,7 +71,9 @@ There are _5_ notebook dockerfiles. For each notebook do steps 2-5.
    ```docker build -t <tagname> .```
      This dockerfile consists of notebooks, their dependencies, and Sciunit.
 
-3. _Some instructions to enter the Docker container_ 
+3. Run the container as:
+   ```docker run -it <tagname>```.
+   The current folder has all the notebooks that we used, and `python` has all the dependencies installed.
     
 4. Run Sciunit to audit and replay with the provided notebooks.  
     
@@ -72,14 +84,13 @@ There are _5_ notebook dockerfiles. For each notebook do steps 2-5.
 
 * Convert Notebooks to Python Files
     - ```sciunit convert <file.ipynb>```
-    - For ML1, v1 this is same as
-    ```sciunit convert ML11.ipynb```
+    - Use `ls` to see notebooks present in the folder
+    - Creates a Python file as `<file.ipynb>.py`
 
 * Execute Each Python file **one-by-one**. 
     - ```sciunit exec python <file.py>```
-    Each time, Sciunit creates a new execution `e<i>`
-    - For ML1, v1 this is same as
-    ```sciunit exec python ML11.py```
+    Each time, Sciunit creates a new execution `e<i>`.
+    It's not required to run all notebooks to generate results.
 
 The above step refers to CHEX Audit in the figure and regenerates the execution trees. 
 
@@ -88,8 +99,8 @@ The above step refers to CHEX Audit in the figure and regenerates the execution 
 
 5. To regenerate the figures plot.py reads the updated execution tree from Sciunit: 
     
-    - Run ```python src\replay\plot.py```
-This will regenerate the figures 8,9,and 10 of the paper with new execution trees. 
+    - Run ```python chex/src/replay/plot.py sciunit```. The CHEX repo is present in the `chex` folder in the current directory.
+This will regenerate the figure 8 of the paper with new execution trees.
     
 ---
 This material is based upon work supported by the National Science Foundation under Grants CNS-1846418, ICER-1639759, ICER-1661918, and a DoE BSSw Fellowship. Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
